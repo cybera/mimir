@@ -1,0 +1,10 @@
+version: "3"
+
+services:
+  jupyter:
+    build: .
+    ports:
+      - "8888"
+    volumes:
+      - ./:/project
+    command: /opt/conda/bin/jupyter notebook --notebook-dir=/project/notebooks --ip='*' --port=8888 --no-browser
