@@ -9,5 +9,9 @@ ccds
 # Test binary, built with `go test -c`
 *.test
 
+# packr
+*-packr.go
+packrd/
+
 # Editors
 .vscode/

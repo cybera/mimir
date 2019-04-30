@@ -1,7 +1,12 @@
 package main
 
-import "github.com/cybera/ccds/cmd"
+import (
+	"log"
+
+	"github.com/cybera/ccds/cmd"
+)
 
 func main() {
+	log.SetFlags(0)
 	cmd.Execute()
 }

@@ -3,22 +3,21 @@ package cmd
 import (
 	"bufio"
 	"fmt"
-	"io"
-	"io/ioutil"
+	"log"
 	"os"
 	"strconv"
 	"strings"
 	"text/template"
 	"time"
 
+	"github.com/cybera/ccds/internal/paths"
 	"github.com/spf13/cobra"
 )
 
-// initCmd represents the init command
 var initCmd = &cobra.Command{
 	Use:   "init",
 	Short: "Creates a basic data science project skeleton",
-	Long:  ``,
+	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		licenses := map[string]string{
 			"1": "MIT",
@@ -26,19 +25,23 @@ var initCmd = &cobra.Command{
 			"3": "None",
 		}
 
+		if _, err := paths.ProjectRootSafe(); err == nil {
+			log.Fatal("Project has already been initialized")
+		}
+
 		reader := bufio.NewReader(os.Stdin)
 
 		fmt.Print("Project name: ")
 		projectName, err := reader.ReadString('\n')
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		projectName = chomp(projectName)
 
 		fmt.Print("Author (Your name or organization/company/team): ")
 		author, err := reader.ReadString('\n')
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		author = chomp(author)
 
@@ -49,23 +52,19 @@ var initCmd = &cobra.Command{
 		fmt.Print("Choose from 1, 2, 3: ")
 		choice, err := reader.ReadString('\n')
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		choice = chomp(choice)
 		license, ok := licenses[choice]
 		if !ok {
-			panic("Bad choice!")
+			log.Fatal(fmt.Sprintf("%s is not a valid choice!", choice))
 		}
 
 		createSkeleton()
 
-		licenseText, err := ioutil.ReadFile("templates/licenses/" + license)
+		licenseText, err := templates.FindString("licenses/" + license)
 		if err != nil {
-			panic(err)
-		}
-		tmpl, err := template.New("License").Parse(string(licenseText))
-		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		data := struct {
@@ -75,18 +74,21 @@ var initCmd = &cobra.Command{
 			author,
 		}
 
-		licenseFile, err := os.Create("foo/LICENSE")
+		tmpl, err := template.New("License").Parse(licenseText)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
+
+		licenseFile, err := os.Create("LICENSE")
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer licenseFile.Close()
 
 		err = tmpl.Execute(licenseFile, data)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
-		licenseFile.Close()
-
-		fmt.Println(projectName, author, license)
 	},
 }
 
@@ -106,25 +108,26 @@ func init() {
 
 func createSkeleton() {
 	directories := []string{
-		"foo/.ccds",
-		"foo/data/external",
-		"foo/data/interim",
-		"foo/data/processed",
-		"foo/data/raw",
-		"foo/docs",
-		"foo/models",
-		"foo/notebooks",
-		"foo/references",
-		"foo/reports/figures",
-		"foo/src/data",
-		"foo/src/features",
-		"foo/src/models",
-		"foo/src/visualization",
+		".ccds",
+		"data/external",
+		"data/interim",
+		"data/processed",
+		"data/raw",
+		"docs",
+		"models",
+		"notebooks",
+		"references",
+		"reports/figures",
+		"src/data",
+		"src/features",
+		"src/models",
+		"src/scripts",
+		"src/visualization",
 	}
 
 	files := map[string]string{
-		"templates/docker/Dockerfile":         "foo/Dockerfile",
-		"templates/docker/docker-compose.yml": "foo/docker-compose.yml",
+		"docker/Dockerfile":         "Dockerfile",
+		"docker/docker-compose.yml": "docker-compose.yml",
 	}
 
 	for _, dir := range directories {
@@ -132,19 +135,20 @@ func createSkeleton() {
 	}
 
 	for src, dest := range files {
-		input, err := os.Open(src)
+		contents, err := templates.Find(src)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 
 		output, err := os.Create(dest)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
+		defer output.Close()
 
-		_, err = io.Copy(output, input)
+		_, err = output.Write(contents)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}
 }
