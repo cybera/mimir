@@ -8,6 +8,7 @@ import (
 )
 
 func Script(name string, args ...string) *exec.Cmd {
-	path := filepath.Join(paths.Scripts(), name)
-	return exec.Command(path, args...)
+	path := paths.ContainerPath(filepath.Join(paths.Scripts(), name))
+	args = append([]string{"run", "--rm", "jupyter", path}, args...)
+	return DockerCompose(args...)
 }
