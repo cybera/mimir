@@ -1,8 +1,13 @@
 package cmd
 
 import (
+	"bufio"
+	"bytes"
+	"fmt"
 	"log"
 	"os"
+	"strings"
+	"time"
 
 	"github.com/cybera/ccds/internal/commands"
 	"github.com/spf13/cobra"
@@ -16,10 +21,41 @@ var startCmd = &cobra.Command{
 		start := commands.DockerCompose("up", "-d")
 		start.Stdout = os.Stdout
 		start.Stderr = os.Stderr
+
 		err := start.Run()
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		var out bytes.Buffer
+		logs := commands.DockerCompose("logs", "jupyter")
+		logs.Stdout = &out
+
+		time.Sleep(3 * time.Second)
+
+		if err = logs.Run(); err != nil {
+			log.Fatal("Error retrieving container logs:", err)
+		}
+
+		scanner := bufio.NewScanner(&out)
+		var token string
+
+		for scanner.Scan() {
+			line := scanner.Text()
+
+			// Don't break the loop, we want the latest token in the logs
+			if idx := strings.Index(line, "?token="); idx != -1 {
+				idx += 7
+				if len(line) >= idx {
+					token = line[idx:]
+				}
+			}
+		}
+
+		notebooksURL := "http://localhost:8888/?token=" + token
+		labURL := "http://localhost:8888/lab?token=" + token
+		fmt.Println("\nNotebooks URL:", notebooksURL)
+		fmt.Println("Lab URL:", labURL)
 	},
 }
 
