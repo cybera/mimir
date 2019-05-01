@@ -6,11 +6,11 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"strings"
 	"text/template"
 	"time"
 
 	"github.com/cybera/ccds/internal/paths"
+	"github.com/cybera/ccds/internal/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -36,14 +36,14 @@ var initCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		projectName = chomp(projectName)
+		projectName = utils.Chomp(projectName)
 
 		fmt.Print("Author (Your name or organization/company/team): ")
 		author, err := reader.ReadString('\n')
 		if err != nil {
 			log.Fatal(err)
 		}
-		author = chomp(author)
+		author = utils.Chomp(author)
 
 		fmt.Println("Select your license: ")
 		for k, v := range licenses {
@@ -54,7 +54,7 @@ var initCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		choice = chomp(choice)
+		choice = utils.Chomp(choice)
 		license, ok := licenses[choice]
 		if !ok {
 			log.Fatal(fmt.Sprintf("%s is not a valid choice!", choice))
@@ -151,8 +151,4 @@ func createSkeleton() {
 			log.Fatal(err)
 		}
 	}
-}
-
-func chomp(s string) string {
-	return strings.Trim(s, " \r\n")
 }
