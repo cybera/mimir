@@ -16,6 +16,7 @@ var stopCmd = &cobra.Command{
 		stop := commands.DockerCompose("down")
 		stop.Stdout = os.Stdout
 		stop.Stderr = os.Stderr
+
 		err := stop.Run()
 		if err != nil {
 			log.Fatal(err)

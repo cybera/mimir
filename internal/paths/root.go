@@ -8,25 +8,17 @@ import (
 	"path/filepath"
 )
 
-func ProjectRoot() string {
-	root, err := ProjectRootSafe()
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	return root
-}
-
-func ProjectRootSafe() (string, error) {
+func ProjectRoot() (string, error) {
 	dir, err := os.Getwd()
 	if err != nil {
 		log.Fatal(err)
+		return "", err
 	}
 
 	for {
 		rel, err := filepath.Rel("/", dir)
 		if err != nil {
-			log.Fatal(err)
+			return "", err
 		}
 		if rel == "." {
 			return "", errors.New("Not under a valid project directory")
@@ -34,7 +26,7 @@ func ProjectRootSafe() (string, error) {
 
 		files, err := ioutil.ReadDir(dir)
 		if err != nil {
-			log.Fatal(err)
+			return "", err
 		}
 
 		for _, f := range files {
@@ -45,4 +37,8 @@ func ProjectRootSafe() (string, error) {
 
 		dir = filepath.Join(dir, "../")
 	}
+}
+
+func ContainerRoot() string {
+	return "/project/"
 }

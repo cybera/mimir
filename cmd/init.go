@@ -3,21 +3,25 @@ package cmd
 import (
 	"bufio"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
 	"strconv"
+	"strings"
 	"text/template"
 	"time"
 
 	"github.com/cybera/ccds/internal/paths"
 	"github.com/cybera/ccds/internal/utils"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 var initCmd = &cobra.Command{
-	Use:   "init",
-	Short: "Creates a basic data science project skeleton",
-	Args:  cobra.ExactArgs(0),
+	Use:              "init",
+	Short:            "Creates a basic data science project skeleton",
+	Args:             cobra.ExactArgs(0),
+	PersistentPreRun: func(cmd *cobra.Command, args []string) {},
 	Run: func(cmd *cobra.Command, args []string) {
 		licenses := map[string]string{
 			"1": "MIT",
@@ -25,18 +29,51 @@ var initCmd = &cobra.Command{
 			"3": "None",
 		}
 
-		if _, err := paths.ProjectRootSafe(); err == nil {
+		if viper.GetString("ProjectRoot") != "" {
 			log.Fatal("Project has already been initialized")
+		}
+
+		projectRoot, err := os.Getwd()
+		if err != nil {
+			log.Fatal(err)
 		}
 
 		reader := bufio.NewReader(os.Stdin)
 
-		fmt.Print("Project name: ")
-		projectName, err := reader.ReadString('\n')
+		files, err := ioutil.ReadDir(projectRoot)
 		if err != nil {
 			log.Fatal(err)
 		}
-		projectName = utils.Chomp(projectName)
+
+		if len(files) > 0 {
+			fmt.Print("This directory is not empty, initialize anyways? [y/N]: ")
+
+			for {
+				input, err := reader.ReadString('\n')
+				if err != nil {
+					log.Fatal(err)
+				}
+
+				input = strings.ToLower(utils.Chomp(input))
+
+				if input == "y" {
+					break
+				} else if input == "n" || input == "" {
+					os.Exit(0)
+				}
+
+				fmt.Print("Please answer [y/N]: ")
+			}
+		}
+
+		viper.Set("ProjectRoot", projectRoot)
+
+		// fmt.Print("Project name: ")
+		// projectName, err := reader.ReadString('\n')
+		// if err != nil {
+		// 	log.Fatal(err)
+		// }
+		// projectName = utils.Chomp(projectName)
 
 		fmt.Print("Author (Your name or organization/company/team): ")
 		author, err := reader.ReadString('\n')
@@ -60,35 +97,7 @@ var initCmd = &cobra.Command{
 			log.Fatal(fmt.Sprintf("%s is not a valid choice!", choice))
 		}
 
-		createSkeleton()
-
-		licenseText, err := templates.FindString("licenses/" + license)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		data := struct {
-			Year, Author string
-		}{
-			strconv.Itoa(time.Now().Year()),
-			author,
-		}
-
-		tmpl, err := template.New("License").Parse(licenseText)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		licenseFile, err := os.Create("LICENSE")
-		if err != nil {
-			log.Fatal(err)
-		}
-		defer licenseFile.Close()
-
-		err = tmpl.Execute(licenseFile, data)
-		if err != nil {
-			log.Fatal(err)
-		}
+		createSkeleton(author, license)
 	},
 }
 
@@ -106,9 +115,12 @@ func init() {
 	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func createSkeleton() {
+func createSkeleton(author, license string) {
+	projectRoot := viper.GetString("ProjectRoot")
+
 	directories := []string{
 		".ccds",
+		"data",
 		"data/external",
 		"data/interim",
 		"data/processed",
@@ -117,7 +129,9 @@ func createSkeleton() {
 		"models",
 		"notebooks",
 		"references",
+		"reports",
 		"reports/figures",
+		"src",
 		"src/data",
 		"src/features",
 		"src/models",
@@ -126,12 +140,15 @@ func createSkeleton() {
 	}
 
 	files := map[string]string{
-		"docker/Dockerfile":         "Dockerfile",
-		"docker/docker-compose.yml": "docker-compose.yml",
+		"docker/Dockerfile":         paths.Dockerfile(projectRoot),
+		"docker/docker-compose.yml": paths.DockerCompose(projectRoot),
 	}
 
 	for _, dir := range directories {
-		os.MkdirAll(dir, os.ModePerm)
+		err := os.MkdirAll(dir, os.ModePerm)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	for src, dest := range files {
@@ -150,5 +167,33 @@ func createSkeleton() {
 		if err != nil {
 			log.Fatal(err)
 		}
+	}
+
+	licenseText, err := templates.FindString("licenses/" + license)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	data := struct {
+		Year, Author string
+	}{
+		strconv.Itoa(time.Now().Year()),
+		author,
+	}
+
+	tmpl, err := template.New("License").Parse(licenseText)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	licenseFile, err := os.Create("LICENSE")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer licenseFile.Close()
+
+	err = tmpl.Execute(licenseFile, data)
+	if err != nil {
+		log.Fatal(err)
 	}
 }
