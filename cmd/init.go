@@ -6,6 +6,8 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"os/exec"
+	"path/filepath"
 	"strconv"
 	"strings"
 	"text/template"
@@ -13,6 +15,7 @@ import (
 
 	"github.com/cybera/ccds/internal/paths"
 	"github.com/cybera/ccds/internal/utils"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -98,6 +101,9 @@ var initCmd = &cobra.Command{
 		}
 
 		createSkeleton(author, license)
+		if err := initRepo(); err != nil {
+			log.Fatal(err)
+		}
 	},
 }
 
@@ -117,37 +123,49 @@ func init() {
 
 func createSkeleton(author, license string) {
 	projectRoot := viper.GetString("ProjectRoot")
+	language := viper.GetString("PrimaryLanguage")
+	gitignore := "gitignore/" + language
 
-	directories := []string{
-		".ccds",
-		"data",
-		"data/external",
-		"data/interim",
-		"data/processed",
-		"data/raw",
-		"docs",
-		"models",
-		"notebooks",
-		"references",
-		"reports",
-		"reports/figures",
-		"src",
-		"src/data",
-		"src/features",
-		"src/models",
-		"src/scripts",
-		"src/visualization",
+	// Key is the directory path, value is whether to create a .gitkeep file
+	directories := map[string]bool{
+		".ccds":             true,
+		"data":              false,
+		"data/external":     true,
+		"data/interim":      true,
+		"data/processed":    true,
+		"data/raw":          true,
+		"docs":              true,
+		"models":            true,
+		"notebooks":         true,
+		"references":        true,
+		"reports":           false,
+		"reports/figures":   true,
+		"src":               false,
+		"src/data":          true,
+		"src/features":      true,
+		"src/models":        true,
+		"src/scripts":       true,
+		"src/visualization": true,
 	}
 
 	files := map[string]string{
+		gitignore:                   ".gitignore",
 		"docker/Dockerfile":         paths.Dockerfile(projectRoot),
 		"docker/docker-compose.yml": paths.DockerCompose(projectRoot),
 	}
 
-	for _, dir := range directories {
+	for dir, keep := range directories {
 		err := os.MkdirAll(dir, os.ModePerm)
 		if err != nil {
 			log.Fatal(err)
+		}
+
+		if keep {
+			file, err := os.Create(filepath.Join(dir, ".gitkeep"))
+			if err != nil {
+				log.Fatal(err)
+			}
+			file.Close()
 		}
 	}
 
@@ -196,4 +214,57 @@ func createSkeleton(author, license string) {
 	if err != nil {
 		log.Fatal(err)
 	}
+}
+
+func initRepo() error {
+	files, err := ioutil.ReadDir("./")
+	if err != nil {
+		return errors.Wrap(err, "failed to detect existing git repo")
+	}
+
+	for _, f := range files {
+		if f.Name() == ".git" && f.IsDir() {
+			return errors.New("git repo already exists")
+		}
+	}
+
+	if _, err := exec.LookPath("git"); err != nil {
+		return errors.Wrap(err, "git not found in path")
+	}
+
+	if err := exec.Command("git", "init").Run(); err != nil {
+		return errors.Wrap(err, "failed to initialize git repo")
+	}
+
+	gitAdd(".ccds")
+	gitCommit("Add ccds config directory")
+	gitAdd(".gitignore", "LICENSE")
+	gitCommit("Add standard repo files")
+	gitAdd("Dockerfile", "docker-compose.yml")
+	gitCommit("Add Docker configuration for Jupyter")
+	gitAdd("data")
+	gitCommit("Add directory for storing datasets")
+	gitAdd("docs")
+	gitCommit("Add directory for storing documentation")
+	gitAdd("models")
+	gitCommit("Add directory for storing models")
+	gitAdd("notebooks")
+	gitCommit("Add directory for storing notebooks")
+	gitAdd("references")
+	gitCommit("Add directory for storing references")
+	gitAdd("reports")
+	gitCommit("Add directory for storing reports")
+	gitAdd("src")
+	gitCommit("Add directory for storing source code")
+
+	return nil
+}
+
+func gitAdd(paths ...string) error {
+	args := append([]string{"add"}, paths...)
+	return exec.Command("git", args...).Run()
+}
+
+func gitCommit(message string) error {
+	return exec.Command("git", "commit", "-m", message).Run()
 }

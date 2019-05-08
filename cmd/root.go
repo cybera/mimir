@@ -50,6 +50,7 @@ func initConfig() {
 
 	viper.Set("ProjectRoot", projectRoot)
 	viper.Set("ContainerRoot", paths.ContainerRoot())
+	viper.Set("PrimaryLanguage", "python") // Dummy value for now
 }
 
 func initPackr() {
