@@ -20,13 +20,17 @@ import (
 var initCmd = &cobra.Command{
 	Use:              "init",
 	Short:            "Creates a basic data science project skeleton",
-	Args:             cobra.ExactArgs(0),
+	Args:             cobra.MinimumNArgs(0),
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {},
 	Run: func(cmd *cobra.Command, args []string) {
 		licenses := map[string]string{
 			"1": "MIT",
 			"2": "BSD-3-Clause",
 			"3": "None",
+		}
+
+		if len(args) != 0 && len(args) != 2 {
+			log.Fatal("Invalid number of arguments")
 		}
 
 		if viper.GetString("ProjectRoot") != "" {
@@ -40,29 +44,31 @@ var initCmd = &cobra.Command{
 
 		reader := bufio.NewReader(os.Stdin)
 
-		files, err := ioutil.ReadDir(projectRoot)
-		if err != nil {
-			log.Fatal(err)
-		}
+		if len(args) == 0 {
+			files, err := ioutil.ReadDir(projectRoot)
+			if err != nil {
+				log.Fatal(err)
+			}
 
-		if len(files) > 0 {
-			fmt.Print("This directory is not empty, initialize anyways? [y/N]: ")
+			if (len(files) > 0) {
+				fmt.Print("This directory is not empty, initialize anyways? [y/N]: ")
 
-			for {
-				input, err := reader.ReadString('\n')
-				if err != nil {
-					log.Fatal(err)
+				for {
+					input, err := reader.ReadString('\n')
+					if err != nil {
+						log.Fatal(err)
+					}
+
+					input = strings.ToLower(utils.Chomp(input))
+
+					if input == "y" {
+						break
+					} else if input == "n" || input == "" {
+						os.Exit(0)
+					}
+
+					fmt.Print("Please answer [y/N]: ")
 				}
-
-				input = strings.ToLower(utils.Chomp(input))
-
-				if input == "y" {
-					break
-				} else if input == "n" || input == "" {
-					os.Exit(0)
-				}
-
-				fmt.Print("Please answer [y/N]: ")
 			}
 		}
 
@@ -74,27 +80,43 @@ var initCmd = &cobra.Command{
 		// 	log.Fatal(err)
 		// }
 		// projectName = utils.Chomp(projectName)
+		author := ""
+		license := ""
+		
+		if len(args) > 0 {
+			author = utils.Chomp(args[0])
+		} else {
+			fmt.Print("Author (Your name or organization/company/team): ")
+			author, err := reader.ReadString('\n')
+			if err != nil {
+				log.Fatal(err)
+			}
+			author = utils.Chomp(author)
+		}
 
-		fmt.Print("Author (Your name or organization/company/team): ")
-		author, err := reader.ReadString('\n')
-		if err != nil {
-			log.Fatal(err)
-		}
-		author = utils.Chomp(author)
+		if len(args) > 0 {
+			choice := utils.Chomp(args[1])
+			license = licenses[choice]
+		} else {
+			fmt.Println("Select your license: ")
 
-		fmt.Println("Select your license: ")
-		for k, v := range licenses {
-			fmt.Println(k, "-", v)
-		}
-		fmt.Print("Choose from 1, 2, 3: ")
-		choice, err := reader.ReadString('\n')
-		if err != nil {
-			log.Fatal(err)
-		}
-		choice = utils.Chomp(choice)
-		license, ok := licenses[choice]
-		if !ok {
-			log.Fatal(fmt.Sprintf("%s is not a valid choice!", choice))
+			for k, v := range licenses {
+				fmt.Println(k, "-", v)
+			}
+
+			fmt.Print("Choose from 1, 2, 3: ")
+			choice, err := reader.ReadString('\n')
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			choice = utils.Chomp(choice)
+			license_choice, ok := licenses[choice]
+			license = license_choice
+
+			if !ok {
+				log.Fatal(fmt.Sprintf("%s is not a valid choice!", choice))
+			}
 		}
 
 		createSkeleton(author, license)
