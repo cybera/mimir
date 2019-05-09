@@ -26,10 +26,10 @@ var initCmd = &cobra.Command{
 	Args:             cobra.ExactArgs(0),
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {},
 	Run: func(cmd *cobra.Command, args []string) {
-		licenses := map[string]string{
-			"1": "MIT",
-			"2": "BSD-3-Clause",
-			"3": "None",
+		licenses := []string{
+			"MIT",
+			"BSD-3-Clause",
+			"None",
 		}
 
 		if viper.GetString("ProjectRoot") != "" {
@@ -85,22 +85,38 @@ var initCmd = &cobra.Command{
 		}
 		author = utils.Chomp(author)
 
+		var license, choices string
+
+		for i := range licenses {
+			choices += strconv.Itoa(i+1) + ", "
+		}
+		choices = choices[:len(choices)-2]
+
 		fmt.Println("Select your license: ")
-		for k, v := range licenses {
-			fmt.Println(k, "-", v)
-		}
-		fmt.Print("Choose from 1, 2, 3: ")
-		choice, err := reader.ReadString('\n')
-		if err != nil {
-			log.Fatal(err)
-		}
-		choice = utils.Chomp(choice)
-		license, ok := licenses[choice]
-		if !ok {
-			log.Fatal(fmt.Sprintf("%s is not a valid choice!", choice))
+		for i, v := range licenses {
+			fmt.Println(i+1, "-", v)
 		}
 
-		if err := createSkeleton(author, license); err != nil {
+		for {
+			fmt.Printf("Choose %s: ", choices)
+			choice, err := reader.ReadString('\n')
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			choice = utils.Chomp(choice)
+			index, err := strconv.Atoi(choice)
+			if err == nil && index > 0 && index <= len(licenses) {
+				license = licenses[index-1]
+				break
+			}
+		}
+
+		if err := createSkeleton(); err != nil {
+			log.Fatal(err)
+		}
+
+		if err := writeLicense(author, license); err != nil {
 			log.Fatal(err)
 		}
 
@@ -124,7 +140,7 @@ func init() {
 	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func createSkeleton(author, license string) error {
+func createSkeleton() error {
 	projectRoot := viper.GetString("ProjectRoot")
 	language := viper.GetString("PrimaryLanguage")
 	gitignore := "gitignore/" + language
@@ -189,6 +205,14 @@ func createSkeleton(author, license string) error {
 		if err != nil {
 			return errors.Wrapf(err, "failed to write to file %s", dest)
 		}
+	}
+
+	return nil
+}
+
+func writeLicense(author, license string) error {
+	if license == "None" {
+		return nil
 	}
 
 	licenseText, err := templates.FindString("licenses/" + license)
