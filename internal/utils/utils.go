@@ -14,6 +14,16 @@ func Chomp(s string) string {
 	return strings.Trim(s, " \r\n")
 }
 
+func Contains(slice []string, item string) bool {
+	for _, x := range slice {
+		if x == item {
+			return true
+		}
+	}
+
+	return false
+}
+
 func WriteConfig() error {
 	settings := viper.AllSettings()
 	delete(settings, "projectroot")
