@@ -10,10 +10,11 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"text/template"
 	"time"
 
+	"github.com/cybera/ccds/internal/languages"
 	"github.com/cybera/ccds/internal/paths"
+	"github.com/cybera/ccds/internal/templates"
 	"github.com/cybera/ccds/internal/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -57,7 +58,7 @@ var initCmd = &cobra.Command{
 					log.Fatal(err)
 				}
 
-				input = strings.ToLower(utils.Chomp(input))
+				input = utils.Chomp(input)
 
 				if input == "y" {
 					break
@@ -112,6 +113,44 @@ var initCmd = &cobra.Command{
 			}
 		}
 
+		var language string
+		choices = ""
+
+		for i := range languages.Supported {
+			choices += strconv.Itoa(i+1) + ", "
+		}
+		choices = choices[:len(choices)-2]
+
+		fmt.Println("Select your primary language: ")
+		for i, v := range languages.Supported {
+			fmt.Println(i+1, "-", v)
+		}
+
+		for {
+			fmt.Printf("Choose %s [1]: ", choices)
+			choice, err := reader.ReadString('\n')
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			choice = strings.ToLower(utils.Chomp(choice))
+			if choice == "" {
+				language = languages.Supported[0]
+				break
+			}
+
+			index, err := strconv.Atoi(choice)
+			if err == nil && index > 0 && index <= len(licenses) {
+				language = languages.Supported[index-1]
+				break
+			}
+		}
+
+		viper.Set("Author", author)
+		viper.Set("License", license)
+		viper.Set("PrimaryLanguage", language)
+
+		log.Println("Creating project skeleton...")
 		if err := createSkeleton(); err != nil {
 			log.Fatal(err)
 		}
@@ -120,6 +159,7 @@ var initCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
+		log.Println("Initializing git repository...")
 		if err := initRepo(); err != nil {
 			log.Fatal(err)
 		}
@@ -147,7 +187,7 @@ func createSkeleton() error {
 
 	// Key is the directory path, value is whether to create a .gitkeep file
 	directories := map[string]bool{
-		".ccds":             true,
+		".ccds":             false,
 		"data":              false,
 		"data/external":     true,
 		"data/interim":      true,
@@ -160,7 +200,7 @@ func createSkeleton() error {
 		"reports":           false,
 		"reports/figures":   true,
 		"src":               false,
-		"src/data":          true,
+		"src/datasets":      true,
 		"src/features":      true,
 		"src/models":        true,
 		"src/scripts":       true,
@@ -169,8 +209,12 @@ func createSkeleton() error {
 
 	files := map[string]string{
 		gitignore:                   ".gitignore",
-		"docker/Dockerfile":         paths.Dockerfile(projectRoot),
-		"docker/docker-compose.yml": paths.DockerCompose(projectRoot),
+		"docker/Dockerfile":         filepath.Join(projectRoot, paths.Dockerfile()),
+		"docker/docker-compose.yml": filepath.Join(projectRoot, paths.DockerCompose()),
+	}
+
+	for k, v := range languages.InitFiles[language] {
+		files[k] = v
 	}
 
 	for dir, keep := range directories {
@@ -190,21 +234,13 @@ func createSkeleton() error {
 	}
 
 	for src, dest := range files {
-		contents, err := templates.Find(src)
-		if err != nil {
-			return errors.Wrapf(err, "failed to load template %s", src)
+		if err := templates.Write(src, dest, struct{}{}); err != nil {
+			return err
 		}
+	}
 
-		output, err := os.Create(dest)
-		if err != nil {
-			return errors.Wrapf(err, "failed to create file %s", dest)
-		}
-		defer output.Close()
-
-		_, err = output.Write(contents)
-		if err != nil {
-			return errors.Wrapf(err, "failed to write to file %s", dest)
-		}
+	if err := utils.WriteConfig(); err != nil {
+		return err
 	}
 
 	return nil
@@ -215,10 +251,7 @@ func writeLicense(author, license string) error {
 		return nil
 	}
 
-	licenseText, err := templates.FindString("licenses/" + license)
-	if err != nil {
-		return errors.Wrapf(err, "failed to load template licenses/%s", license)
-	}
+	src := "licenses/" + license
 
 	data := struct {
 		Year, Author string
@@ -227,23 +260,7 @@ func writeLicense(author, license string) error {
 		author,
 	}
 
-	tmpl, err := template.New("License").Parse(licenseText)
-	if err != nil {
-		return errors.Wrap(err, "failed to parse license text")
-	}
-
-	licenseFile, err := os.Create("LICENSE")
-	if err != nil {
-		return errors.Wrap(err, "failed to create license file")
-	}
-	defer licenseFile.Close()
-
-	err = tmpl.Execute(licenseFile, data)
-	if err != nil {
-		return errors.Wrap(err, "failed to write license template")
-	}
-
-	return nil
+	return templates.Write(src, "LICENSE", data)
 }
 
 func initRepo() error {
