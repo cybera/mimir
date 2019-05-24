@@ -4,6 +4,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/cybera/ccds/internal/languages"
@@ -26,12 +27,13 @@ func TestInit(t *testing.T) {
 			defer os.Chdir("../")
 
 			cmd := exec.Command("go", "run", "../../main.go", "init", "-n", "-f", "--author", author, "--license", license, "--language", language)
-			cmd.Stdout = os.Stdout
-			cmd.Stderr = os.Stderr
-
+			var b strings.Builder
+			cmd.Stdout = &b
+			cmd.Stderr = &b
 			if err := cmd.Run(); err != nil {
-				t.Fatalf("process exited with err: %v", err)
+				t.Errorf("process exited with err: %v", err)
 			}
+			t.Log("output:\n", b.String())
 		})
 	}
 }
