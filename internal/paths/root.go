@@ -38,7 +38,3 @@ func ProjectRoot() (string, error) {
 		dir = filepath.Join(dir, "../")
 	}
 }
-
-func ContainerRoot() string {
-	return "/project/"
-}

@@ -2,6 +2,10 @@ package paths
 
 import "path/filepath"
 
+func ContainerRoot() string {
+	return "/project/"
+}
+
 func DockerCompose(rootPath string) string {
 	return filepath.Join(rootPath, "docker-compose.yml")
 }
