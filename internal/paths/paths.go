@@ -13,3 +13,7 @@ func Dockerfile(rootPath string) string {
 func Scripts(rootPath string) string {
 	return filepath.Join(rootPath, "src/scripts")
 }
+
+func Config(rootPath string) string {
+	return filepath.Join(rootPath, ".ccds/config.yaml")
+}

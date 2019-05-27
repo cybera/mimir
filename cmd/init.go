@@ -112,6 +112,9 @@ var initCmd = &cobra.Command{
 			}
 		}
 
+		viper.Set("Author", author)
+		viper.Set("License", license)
+
 		if err := createSkeleton(); err != nil {
 			log.Fatal(err)
 		}
@@ -147,7 +150,7 @@ func createSkeleton() error {
 
 	// Key is the directory path, value is whether to create a .gitkeep file
 	directories := map[string]bool{
-		".ccds":             true,
+		".ccds":             false,
 		"data":              false,
 		"data/external":     true,
 		"data/interim":      true,
@@ -193,7 +196,10 @@ func createSkeleton() error {
 		if err := templates.Write(src, dest, struct{}{}); err != nil {
 			return err
 		}
+	}
 
+	if err := utils.WriteConfig(); err != nil {
+		return err
 	}
 
 	return nil
