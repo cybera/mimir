@@ -21,7 +21,7 @@ func ProjectRoot() (string, error) {
 			return "", err
 		}
 		if rel == "." {
-			return "", errors.New("Not under a valid project directory")
+			return "", errors.New("not under a valid project directory")
 		}
 
 		files, err := ioutil.ReadDir(dir)
