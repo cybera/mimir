@@ -10,10 +10,10 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
-	"text/template"
 	"time"
 
 	"github.com/cybera/ccds/internal/paths"
+	"github.com/cybera/ccds/internal/templates"
 	"github.com/cybera/ccds/internal/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
@@ -190,21 +190,10 @@ func createSkeleton() error {
 	}
 
 	for src, dest := range files {
-		contents, err := templates.Find(src)
-		if err != nil {
-			return errors.Wrapf(err, "failed to load template %s", src)
+		if err := templates.Write(src, dest, struct{}{}); err != nil {
+			return err
 		}
 
-		output, err := os.Create(dest)
-		if err != nil {
-			return errors.Wrapf(err, "failed to create file %s", dest)
-		}
-		defer output.Close()
-
-		_, err = output.Write(contents)
-		if err != nil {
-			return errors.Wrapf(err, "failed to write to file %s", dest)
-		}
 	}
 
 	return nil
@@ -215,10 +204,7 @@ func writeLicense(author, license string) error {
 		return nil
 	}
 
-	licenseText, err := templates.FindString("licenses/" + license)
-	if err != nil {
-		return errors.Wrapf(err, "failed to load template licenses/%s", license)
-	}
+	src := "licenses/" + license
 
 	data := struct {
 		Year, Author string
@@ -227,23 +213,7 @@ func writeLicense(author, license string) error {
 		author,
 	}
 
-	tmpl, err := template.New("License").Parse(licenseText)
-	if err != nil {
-		return errors.Wrap(err, "failed to parse license text")
-	}
-
-	licenseFile, err := os.Create("LICENSE")
-	if err != nil {
-		return errors.Wrap(err, "failed to create license file")
-	}
-	defer licenseFile.Close()
-
-	err = tmpl.Execute(licenseFile, data)
-	if err != nil {
-		return errors.Wrap(err, "failed to write license template")
-	}
-
-	return nil
+	return templates.Write(src, "LICENSE", data)
 }
 
 func initRepo() error {

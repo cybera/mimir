@@ -6,12 +6,9 @@ import (
 	"os"
 
 	"github.com/cybera/ccds/internal/paths"
-	"github.com/gobuffalo/packr/v2"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
-
-var templates *packr.Box
 
 var rootCmd = &cobra.Command{
 	Use:   "ccds",
@@ -34,7 +31,6 @@ func Execute() {
 
 func init() {
 	cobra.OnInitialize(initConfig)
-	cobra.OnInitialize(initPackr)
 
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
@@ -51,8 +47,4 @@ func initConfig() {
 	viper.Set("ProjectRoot", projectRoot)
 	viper.Set("ContainerRoot", paths.ContainerRoot())
 	viper.Set("PrimaryLanguage", "python") // Dummy value for now
-}
-
-func initPackr() {
-	templates = packr.New("Templates", "../templates")
 }
