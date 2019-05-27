@@ -13,13 +13,11 @@ import (
 
 func TestMain(m *testing.M) {
 	viper.Set("ProjectRoot", "/my/project/root")
-	viper.Set("ContainerRoot", "/project")
 	os.Exit(m.Run())
 }
 
 func TestDockerCompose(t *testing.T) {
-	projectRoot := viper.GetString("ProjectRoot")
-	composeFile := paths.DockerCompose(projectRoot)
+	composeFile := filepath.Join(viper.GetString("ProjectRoot"), paths.DockerCompose())
 
 	want := exec.Command("docker-compose", "-f", composeFile, "up", "-d")
 	got := DockerCompose("up", "-d")
@@ -30,10 +28,8 @@ func TestDockerCompose(t *testing.T) {
 }
 
 func TestScript(t *testing.T) {
-	projectRoot := viper.GetString("ProjectRoot")
-	containerRoot := viper.GetString("ContainerRoot")
-	composeFile := paths.DockerCompose(projectRoot)
-	scriptsDir := paths.Scripts(containerRoot)
+	composeFile := filepath.Join(viper.GetString("ProjectRoot"), paths.DockerCompose())
+	scriptsDir := filepath.Join(paths.ContainerRoot(), paths.Scripts())
 	scriptFile := filepath.Join(scriptsDir, "script.sh")
 
 	want := exec.Command("docker-compose", "-f", composeFile, "run", "--rm", "jupyter", scriptFile, "--flag")

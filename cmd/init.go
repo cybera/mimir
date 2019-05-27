@@ -172,8 +172,8 @@ func createSkeleton() error {
 
 	files := map[string]string{
 		gitignore:                   ".gitignore",
-		"docker/Dockerfile":         paths.Dockerfile(projectRoot),
-		"docker/docker-compose.yml": paths.DockerCompose(projectRoot),
+		"docker/Dockerfile":         filepath.Join(projectRoot, paths.Dockerfile()),
+		"docker/docker-compose.yml": filepath.Join(projectRoot, paths.DockerCompose()),
 	}
 
 	for dir, keep := range directories {

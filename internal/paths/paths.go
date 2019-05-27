@@ -1,23 +1,33 @@
 package paths
 
-import "path/filepath"
-
 func ContainerRoot() string {
 	return "/project/"
 }
 
-func DockerCompose(rootPath string) string {
-	return filepath.Join(rootPath, "docker-compose.yml")
+func DockerCompose() string {
+	return "docker-compose.yml"
 }
 
-func Dockerfile(rootPath string) string {
-	return filepath.Join(rootPath, "Dockerfile")
+func Dockerfile() string {
+	return "Dockerfile"
 }
 
-func Scripts(rootPath string) string {
-	return filepath.Join(rootPath, "src/scripts")
+func Scripts() string {
+	return "src/scripts/"
 }
 
-func Config(rootPath string) string {
-	return filepath.Join(rootPath, ".ccds/config.yaml")
+func DatasetsCode() string {
+	return "src/datasets/"
+}
+
+func RawDatasets() string {
+	return "data/raw/"
+}
+
+func ProcessedDatasets() string {
+	return "data/processed/"
+}
+
+func Config() string {
+	return ".ccds/config.yaml"
 }
