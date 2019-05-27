@@ -75,60 +75,13 @@ var initCmd = &cobra.Command{
 		}
 
 		if license == "" {
-			var choices string
-
-			for i := range licenses {
-				choices += strconv.Itoa(i+1) + ", "
-			}
-			choices = choices[:len(choices)-2]
-
-			fmt.Println("Select your license: ")
-			for i, v := range licenses {
-				fmt.Println(i+1, "-", v)
-			}
-
-			for {
-				fmt.Printf("Choose %s: ", choices)
-				input := getInput(reader)
-
-				choice, err := strconv.Atoi(input)
-				if err == nil && choice > 0 && choice <= len(licenses) {
-					license = licenses[choice-1]
-					break
-				}
-			}
+			license = ask(reader, "Select your license: ", licenses, -1)
 		} else if !utils.Contains(licenses, license) {
 			log.Fatal("unknown license")
 		}
 
 		if language == "" {
-			choices := ""
-
-			for i := range languages.Supported {
-				choices += strconv.Itoa(i+1) + ", "
-			}
-			choices = choices[:len(choices)-2]
-
-			fmt.Println("Select your primary language: ")
-			for i, v := range languages.Supported {
-				fmt.Println(i+1, "-", v)
-			}
-
-			for {
-				fmt.Printf("Choose %s [1]: ", choices)
-				input := getInput(reader)
-
-				if input == "" {
-					language = languages.Supported[0]
-					break
-				}
-
-				choice, err := strconv.Atoi(input)
-				if err == nil && choice > 0 && choice <= len(languages.Supported) {
-					language = languages.Supported[choice-1]
-					break
-				}
-			}
+			language = ask(reader, "Select your language: ", languages.Supported, 0)
 		} else if !utils.Contains(languages.Supported, language) {
 			log.Fatal("unknown language")
 		}
@@ -161,6 +114,42 @@ func init() {
 	initCmd.Flags().StringVar(&language, "language", "", "Which programming language to use")
 	initCmd.Flags().BoolVarP(&force, "force", "f", false, "Ignore existing files and directories")
 	initCmd.Flags().BoolVarP(&nonInteractive, "non-interactive", "n", false, "Error if any user input is required")
+}
+
+func ask(reader *bufio.Reader, text string, choices []string, def int) string {
+	var numbers string
+	for i := range choices {
+		numbers += strconv.Itoa(i+1) + ", "
+	}
+	numbers = numbers[:len(numbers)-2]
+
+	fmt.Println(text)
+	for i, v := range choices {
+		fmt.Println(i+1, "-", v)
+	}
+
+	var choice int
+
+	for {
+		if def >= 0 {
+			fmt.Printf("Choose %s [%d]: ", numbers, def)
+		} else {
+			fmt.Printf("Choose %s: ", numbers)
+		}
+		input := getInput(reader)
+
+		if def >= 0 && input == "" {
+			choice = def
+			break
+		}
+
+		choice, err := strconv.Atoi(input)
+		if err == nil && choice > 0 && choice <= len(choices) {
+			break
+		}
+	}
+
+	return choices[choice-1]
 }
 
 func getInput(reader *bufio.Reader) string {
