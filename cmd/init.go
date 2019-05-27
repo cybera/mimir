@@ -115,6 +115,7 @@ var initCmd = &cobra.Command{
 		viper.Set("Author", author)
 		viper.Set("License", license)
 
+		log.Println("Creating project skeleton...")
 		if err := createSkeleton(); err != nil {
 			log.Fatal(err)
 		}
@@ -123,6 +124,7 @@ var initCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
+		log.Println("Initializing git repository...")
 		if err := initRepo(); err != nil {
 			log.Fatal(err)
 		}
