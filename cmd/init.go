@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cybera/ccds/internal/languages"
 	"github.com/cybera/ccds/internal/paths"
 	"github.com/cybera/ccds/internal/templates"
 	"github.com/cybera/ccds/internal/utils"
@@ -57,7 +58,7 @@ var initCmd = &cobra.Command{
 					log.Fatal(err)
 				}
 
-				input = strings.ToLower(utils.Chomp(input))
+				input = utils.Chomp(input)
 
 				if input == "y" {
 					break
@@ -112,8 +113,42 @@ var initCmd = &cobra.Command{
 			}
 		}
 
+		var language string
+		choices = ""
+
+		for i := range languages.Supported {
+			choices += strconv.Itoa(i+1) + ", "
+		}
+		choices = choices[:len(choices)-2]
+
+		fmt.Println("Select your primary language: ")
+		for i, v := range languages.Supported {
+			fmt.Println(i+1, "-", v)
+		}
+
+		for {
+			fmt.Printf("Choose %s [1]: ", choices)
+			choice, err := reader.ReadString('\n')
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			choice = strings.ToLower(utils.Chomp(choice))
+			if choice == "" {
+				language = languages.Supported[0]
+				break
+			}
+
+			index, err := strconv.Atoi(choice)
+			if err == nil && index > 0 && index <= len(licenses) {
+				language = languages.Supported[index-1]
+				break
+			}
+		}
+
 		viper.Set("Author", author)
 		viper.Set("License", license)
+		viper.Set("PrimaryLanguage", language)
 
 		log.Println("Creating project skeleton...")
 		if err := createSkeleton(); err != nil {
@@ -165,7 +200,7 @@ func createSkeleton() error {
 		"reports":           false,
 		"reports/figures":   true,
 		"src":               false,
-		"src/data":          true,
+		"src/datasets":      true,
 		"src/features":      true,
 		"src/models":        true,
 		"src/scripts":       true,
@@ -176,6 +211,10 @@ func createSkeleton() error {
 		gitignore:                   ".gitignore",
 		"docker/Dockerfile":         filepath.Join(projectRoot, paths.Dockerfile()),
 		"docker/docker-compose.yml": filepath.Join(projectRoot, paths.DockerCompose()),
+	}
+
+	for k, v := range languages.InitFiles[language] {
+		files[k] = v
 	}
 
 	for dir, keep := range directories {
