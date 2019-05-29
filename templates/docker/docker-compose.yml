@@ -3,6 +3,8 @@ version: "3"
 services:
   jupyter:
     build: .
+    environment:
+      - PYTHONPATH=/project
     ports:
       - "8888:8888"
     volumes:

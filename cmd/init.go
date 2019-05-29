@@ -9,16 +9,19 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
-	"strings"
-	"text/template"
 	"time"
 
+	"github.com/cybera/ccds/internal/languages"
 	"github.com/cybera/ccds/internal/paths"
+	"github.com/cybera/ccds/internal/templates"
 	"github.com/cybera/ccds/internal/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
+
+var author, license, language string
+var force, nonInteractive bool
 
 var initCmd = &cobra.Command{
 	Use:              "init",
@@ -48,16 +51,11 @@ var initCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		if len(files) > 0 {
+		if len(files) > 0 && !force {
 			fmt.Print("This directory is not empty, initialize anyways? [y/N]: ")
 
 			for {
-				input, err := reader.ReadString('\n')
-				if err != nil {
-					log.Fatal(err)
-				}
-
-				input = strings.ToLower(utils.Chomp(input))
+				input := getInput(reader)
 
 				if input == "y" {
 					break
@@ -71,47 +69,28 @@ var initCmd = &cobra.Command{
 
 		viper.Set("ProjectRoot", projectRoot)
 
-		// fmt.Print("Project name: ")
-		// projectName, err := reader.ReadString('\n')
-		// if err != nil {
-		// 	log.Fatal(err)
-		// }
-		// projectName = utils.Chomp(projectName)
-
-		fmt.Print("Author (Your name or organization/company/team): ")
-		author, err := reader.ReadString('\n')
-		if err != nil {
-			log.Fatal(err)
-		}
-		author = utils.Chomp(author)
-
-		var license, choices string
-
-		for i := range licenses {
-			choices += strconv.Itoa(i+1) + ", "
-		}
-		choices = choices[:len(choices)-2]
-
-		fmt.Println("Select your license: ")
-		for i, v := range licenses {
-			fmt.Println(i+1, "-", v)
+		if author == "" {
+			fmt.Print("Author (Your name or organization/company/team): ")
+			author = getInput(reader)
 		}
 
-		for {
-			fmt.Printf("Choose %s: ", choices)
-			choice, err := reader.ReadString('\n')
-			if err != nil {
-				log.Fatal(err)
-			}
-
-			choice = utils.Chomp(choice)
-			index, err := strconv.Atoi(choice)
-			if err == nil && index > 0 && index <= len(licenses) {
-				license = licenses[index-1]
-				break
-			}
+		if license == "" {
+			license = ask(reader, "Select your license: ", licenses, -1)
+		} else if !utils.Contains(licenses, license) {
+			log.Fatal("unknown license")
 		}
 
+		if language == "" {
+			language = ask(reader, "Select your language: ", languages.Supported, 0)
+		} else if !utils.Contains(languages.Supported, language) {
+			log.Fatal("unknown language")
+		}
+
+		viper.Set("Author", author)
+		viper.Set("License", license)
+		viper.Set("PrimaryLanguage", language)
+
+		log.Println("Creating project skeleton...")
 		if err := createSkeleton(); err != nil {
 			log.Fatal(err)
 		}
@@ -120,6 +99,7 @@ var initCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
+		log.Println("Initializing git repository...")
 		if err := initRepo(); err != nil {
 			log.Fatal(err)
 		}
@@ -129,15 +109,56 @@ var initCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(initCmd)
 
-	// Here you will define your flags and configuration settings.
+	initCmd.Flags().StringVar(&author, "author", "", "Author name")
+	initCmd.Flags().StringVar(&license, "license", "", "Project license")
+	initCmd.Flags().StringVar(&language, "language", "", "Which programming language to use")
+	initCmd.Flags().BoolVarP(&force, "force", "f", false, "Ignore existing files and directories")
+	initCmd.Flags().BoolVarP(&nonInteractive, "non-interactive", "n", false, "Error if any user input is required")
+}
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// initCmd.PersistentFlags().String("foo", "", "A help for foo")
+func ask(reader *bufio.Reader, text string, choices []string, def int) string {
+	var numbers string
+	for i := range choices {
+		numbers += strconv.Itoa(i+1) + ", "
+	}
+	numbers = numbers[:len(numbers)-2]
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// initCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	fmt.Println(text)
+	for i, v := range choices {
+		fmt.Println(i+1, "-", v)
+	}
+
+	var choice int
+
+	for {
+		if def >= 0 {
+			fmt.Printf("Choose %s [%d]: ", numbers, def)
+		} else {
+			fmt.Printf("Choose %s: ", numbers)
+		}
+		input := getInput(reader)
+
+		if def >= 0 && input == "" {
+			choice = def
+			break
+		}
+
+		choice, err := strconv.Atoi(input)
+		if err == nil && choice > 0 && choice <= len(choices) {
+			break
+		}
+	}
+
+	return choices[choice-1]
+}
+
+func getInput(reader *bufio.Reader) string {
+	if nonInteractive {
+		log.Fatal("\nerror: input required in non-interactive mode")
+	}
+
+	input, _ := reader.ReadString('\n')
+	return utils.Chomp(input)
 }
 
 func createSkeleton() error {
@@ -147,7 +168,7 @@ func createSkeleton() error {
 
 	// Key is the directory path, value is whether to create a .gitkeep file
 	directories := map[string]bool{
-		".ccds":             true,
+		".ccds":             false,
 		"data":              false,
 		"data/external":     true,
 		"data/interim":      true,
@@ -160,7 +181,7 @@ func createSkeleton() error {
 		"reports":           false,
 		"reports/figures":   true,
 		"src":               false,
-		"src/data":          true,
+		"src/datasets":      true,
 		"src/features":      true,
 		"src/models":        true,
 		"src/scripts":       true,
@@ -169,8 +190,12 @@ func createSkeleton() error {
 
 	files := map[string]string{
 		gitignore:                   ".gitignore",
-		"docker/Dockerfile":         paths.Dockerfile(projectRoot),
-		"docker/docker-compose.yml": paths.DockerCompose(projectRoot),
+		"docker/Dockerfile":         filepath.Join(projectRoot, paths.Dockerfile()),
+		"docker/docker-compose.yml": filepath.Join(projectRoot, paths.DockerCompose()),
+	}
+
+	for k, v := range languages.InitFiles[language] {
+		files[k] = v
 	}
 
 	for dir, keep := range directories {
@@ -190,21 +215,13 @@ func createSkeleton() error {
 	}
 
 	for src, dest := range files {
-		contents, err := templates.Find(src)
-		if err != nil {
-			return errors.Wrapf(err, "failed to load template %s", src)
+		if err := templates.Write(src, dest, struct{}{}); err != nil {
+			return err
 		}
+	}
 
-		output, err := os.Create(dest)
-		if err != nil {
-			return errors.Wrapf(err, "failed to create file %s", dest)
-		}
-		defer output.Close()
-
-		_, err = output.Write(contents)
-		if err != nil {
-			return errors.Wrapf(err, "failed to write to file %s", dest)
-		}
+	if err := utils.WriteConfig(); err != nil {
+		return err
 	}
 
 	return nil
@@ -215,10 +232,7 @@ func writeLicense(author, license string) error {
 		return nil
 	}
 
-	licenseText, err := templates.FindString("licenses/" + license)
-	if err != nil {
-		return errors.Wrapf(err, "failed to load template licenses/%s", license)
-	}
+	src := "licenses/" + license
 
 	data := struct {
 		Year, Author string
@@ -227,23 +241,7 @@ func writeLicense(author, license string) error {
 		author,
 	}
 
-	tmpl, err := template.New("License").Parse(licenseText)
-	if err != nil {
-		return errors.Wrap(err, "failed to parse license text")
-	}
-
-	licenseFile, err := os.Create("LICENSE")
-	if err != nil {
-		return errors.Wrap(err, "failed to create license file")
-	}
-	defer licenseFile.Close()
-
-	err = tmpl.Execute(licenseFile, data)
-	if err != nil {
-		return errors.Wrap(err, "failed to write license template")
-	}
-
-	return nil
+	return templates.Write(src, "LICENSE", data)
 }
 
 func initRepo() error {
