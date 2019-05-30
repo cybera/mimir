@@ -143,7 +143,9 @@ func ask(reader *bufio.Reader, text string, choices []string, def int) string {
 			break
 		}
 
-		choice, err := strconv.Atoi(input)
+		var err error
+
+		choice, err = strconv.Atoi(input)
 		if err == nil && choice > 0 && choice <= len(choices) {
 			break
 		}
