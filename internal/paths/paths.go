@@ -36,6 +36,6 @@ func ProcessedDatasets() string {
 	return "data/processed/"
 }
 
-func Config() string {
-	return ".ccds/config.yaml"
+func ProjectMetadata() string {
+	return ".ccds/project-metadata.toml"
 }

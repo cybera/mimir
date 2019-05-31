@@ -22,7 +22,7 @@ var rootCmd = &cobra.Command{
 
 		viper.SetDefault("datasets", map[string]interface{}{})
 
-		viper.SetConfigFile(filepath.Join(projectRoot, paths.Config()))
+		viper.SetConfigFile(filepath.Join(projectRoot, paths.ProjectMetadata()))
 		if err := viper.ReadInConfig(); err != nil {
 			log.Fatal("failed to read config: ", err)
 		}
