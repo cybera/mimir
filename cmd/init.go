@@ -166,7 +166,6 @@ func getInput(reader *bufio.Reader) string {
 func createSkeleton() error {
 	projectRoot := viper.GetString("ProjectRoot")
 	language := viper.GetString("PrimaryLanguage")
-	gitignore := "gitignore/" + language
 
 	// Key is the directory path, value is whether to create a .gitkeep file
 	directories := map[string]bool{
@@ -191,7 +190,6 @@ func createSkeleton() error {
 	}
 
 	files := map[string]string{
-		gitignore:                   ".gitignore",
 		"docker/Dockerfile":         filepath.Join(projectRoot, paths.Dockerfile()),
 		"docker/docker-compose.yml": filepath.Join(projectRoot, paths.DockerCompose()),
 		"project-settings.toml":     filepath.Join(projectRoot, paths.ExampleProjectSettings()),
@@ -229,8 +227,30 @@ func createSkeleton() error {
 		}
 	}
 
+	if err := writeGitignore(language); err != nil {
+		return err
+	}
+
 	if err := utils.WriteConfig(); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func writeGitignore(language string) error {
+	sources := []string{"gitignore/general", "gitignore/" + language}
+
+	file, err := os.Create(".gitignore")
+	if err != nil {
+		return errors.Wrapf(err, "failed to create file .gitignore")
+	}
+	defer file.Close()
+
+	for _, s := range sources {
+		if err := templates.Write(s, file, struct{}{}); err != nil {
+			return err
+		}
 	}
 
 	return nil
