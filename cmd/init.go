@@ -194,6 +194,7 @@ func createSkeleton() error {
 		gitignore:                   ".gitignore",
 		"docker/Dockerfile":         filepath.Join(projectRoot, paths.Dockerfile()),
 		"docker/docker-compose.yml": filepath.Join(projectRoot, paths.DockerCompose()),
+		"project-settings.toml":     filepath.Join(projectRoot, paths.ExampleProjectSettings()),
 	}
 
 	for k, v := range languages.InitFiles[language] {
@@ -216,8 +217,14 @@ func createSkeleton() error {
 		}
 	}
 
+	data := struct {
+		ProjectSettingsPath string
+	}{
+		ProjectSettingsPath: filepath.Join("../", paths.ProjectSettings()),
+	}
+
 	for src, dest := range files {
-		if err := templates.Write(src, dest, struct{}{}); err != nil {
+		if err := templates.Write(src, dest, data); err != nil {
 			return err
 		}
 	}
