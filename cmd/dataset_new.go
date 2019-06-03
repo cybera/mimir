@@ -85,7 +85,7 @@ var newDatasetCmd = &cobra.Command{
 		}
 
 		log.Printf("Writing dataset import code to %s...", dest)
-		if err := templates.Write(src, dest, data); err != nil {
+		if err := templates.WriteFile(src, dest, data); err != nil {
 			log.Fatal("failed to generate dataset import code: ", err)
 		}
 

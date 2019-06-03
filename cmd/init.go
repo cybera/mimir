@@ -224,7 +224,7 @@ func createSkeleton() error {
 	}
 
 	for src, dest := range files {
-		if err := templates.Write(src, dest, data); err != nil {
+		if err := templates.WriteFile(src, dest, data); err != nil {
 			return err
 		}
 	}
@@ -250,7 +250,7 @@ func writeLicense(author, license string) error {
 		author,
 	}
 
-	return templates.Write(src, "LICENSE", data)
+	return templates.WriteFile(src, "LICENSE", data)
 }
 
 func initRepo() error {
