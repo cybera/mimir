@@ -4,6 +4,14 @@ func ContainerRoot() string {
 	return "/project/"
 }
 
+func ProjectSettings() string {
+	return "project-settings.toml"
+}
+
+func ExampleProjectSettings() string {
+	return ProjectSettings() + ".example"
+}
+
 func DockerCompose() string {
 	return "docker-compose.yml"
 }
@@ -28,6 +36,6 @@ func ProcessedDatasets() string {
 	return "data/processed/"
 }
 
-func Config() string {
-	return ".ccds/config.yaml"
+func ProjectMetadata() string {
+	return ".ccds/project-metadata.toml"
 }

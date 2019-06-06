@@ -4,10 +4,10 @@ import (
 	"os"
 	"strings"
 
+	"github.com/BurntSushi/toml"
 	"github.com/cybera/ccds/internal/paths"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
-	"gopkg.in/yaml.v2"
 )
 
 func Chomp(s string) string {
@@ -28,18 +28,14 @@ func WriteConfig() error {
 	settings := viper.AllSettings()
 	delete(settings, "projectroot")
 
-	bytes, err := yaml.Marshal(settings)
-	if err != nil {
-		return errors.Wrapf(err, "error writing config")
-	}
-
-	file, err := os.Create(paths.Config())
+	file, err := os.Create(paths.ProjectMetadata())
 	if err != nil {
 		return errors.Wrapf(err, "error writing config")
 	}
 	defer file.Close()
 
-	if _, err := file.Write(bytes); err != nil {
+	enc := toml.NewEncoder(file)
+	if err := enc.Encode(settings); err != nil {
 		return errors.Wrapf(err, "error writing config")
 	}
 

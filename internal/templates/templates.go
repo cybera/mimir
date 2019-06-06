@@ -1,6 +1,7 @@
 package templates
 
 import (
+	"io"
 	"os"
 	"text/template"
 
@@ -8,7 +9,17 @@ import (
 	"github.com/pkg/errors"
 )
 
-func Write(src, dest string, data interface{}) error {
+func WriteFile(src, dest string, data interface{}) error {
+	file, err := os.Create(dest)
+	if err != nil {
+		return errors.Wrapf(err, "failed to create file %s", dest)
+	}
+	defer file.Close()
+
+	return Write(src, file, data)
+}
+
+func Write(src string, dest io.Writer, data interface{}) error {
 	box := packr.New("templates", "../../templates")
 
 	text, err := box.FindString(src)
@@ -21,15 +32,9 @@ func Write(src, dest string, data interface{}) error {
 		return errors.Wrapf(err, "failed to parse template %s", src)
 	}
 
-	file, err := os.Create(dest)
+	err = tmpl.Execute(dest, data)
 	if err != nil {
-		return errors.Wrapf(err, "failed to create file %s", dest)
-	}
-	defer file.Close()
-
-	err = tmpl.Execute(file, data)
-	if err != nil {
-		return errors.Wrapf(err, "failed to write template %s to file %s", src, dest)
+		return errors.Wrapf(err, "failed to write template %s", src)
 	}
 
 	return nil

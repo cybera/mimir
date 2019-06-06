@@ -132,7 +132,7 @@ func ask(reader *bufio.Reader, text string, choices []string, def int) string {
 
 	for {
 		if def >= 0 {
-			fmt.Printf("Choose %s [%d]: ", numbers, def)
+			fmt.Printf("Choose %s [%d]: ", numbers, def+1)
 		} else {
 			fmt.Printf("Choose %s: ", numbers)
 		}
@@ -166,7 +166,6 @@ func getInput(reader *bufio.Reader) string {
 func createSkeleton() error {
 	projectRoot := viper.GetString("ProjectRoot")
 	language := viper.GetString("PrimaryLanguage")
-	gitignore := "gitignore/" + language
 
 	// Key is the directory path, value is whether to create a .gitkeep file
 	directories := map[string]bool{
@@ -191,9 +190,9 @@ func createSkeleton() error {
 	}
 
 	files := map[string]string{
-		gitignore:                   ".gitignore",
 		"docker/Dockerfile":         filepath.Join(projectRoot, paths.Dockerfile()),
 		"docker/docker-compose.yml": filepath.Join(projectRoot, paths.DockerCompose()),
+		"project-settings.toml":     filepath.Join(projectRoot, paths.ExampleProjectSettings()),
 	}
 
 	for k, v := range languages.InitFiles[language] {
@@ -216,14 +215,42 @@ func createSkeleton() error {
 		}
 	}
 
+	data := struct {
+		ProjectSettingsPath string
+	}{
+		ProjectSettingsPath: filepath.Join("../", paths.ProjectSettings()),
+	}
+
 	for src, dest := range files {
-		if err := templates.Write(src, dest, struct{}{}); err != nil {
+		if err := templates.WriteFile(src, dest, data); err != nil {
 			return err
 		}
 	}
 
+	if err := writeGitignore(language); err != nil {
+		return err
+	}
+
 	if err := utils.WriteConfig(); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func writeGitignore(language string) error {
+	sources := []string{"gitignore/general", "gitignore/" + language}
+
+	file, err := os.Create(".gitignore")
+	if err != nil {
+		return errors.Wrapf(err, "failed to create file .gitignore")
+	}
+	defer file.Close()
+
+	for _, s := range sources {
+		if err := templates.Write(s, file, struct{}{}); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -243,7 +270,7 @@ func writeLicense(author, license string) error {
 		author,
 	}
 
-	return templates.Write(src, "LICENSE", data)
+	return templates.WriteFile(src, "LICENSE", data)
 }
 
 func initRepo() error {

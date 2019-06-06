@@ -7,6 +7,7 @@ import (
 	"github.com/cybera/ccds/internal/languages"
 	"github.com/cybera/ccds/internal/paths"
 	"github.com/cybera/ccds/internal/test"
+	"github.com/cybera/ccds/internal/utils"
 	"github.com/spf13/viper"
 )
 
@@ -27,7 +28,7 @@ func TestDatasetNew(t *testing.T) {
 	for _, language := range languages.Supported {
 		t.Run(language, func(t *testing.T) {
 			viper.Set("PrimaryLanguage", language)
-			viper.WriteConfigAs(paths.Config())
+			utils.WriteConfig()
 
 			output, err := test.RunCommand("dataset", "new", "titanic.csv")
 			if err != nil {
