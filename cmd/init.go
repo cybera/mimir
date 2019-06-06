@@ -132,7 +132,7 @@ func ask(reader *bufio.Reader, text string, choices []string, def int) string {
 
 	for {
 		if def >= 0 {
-			fmt.Printf("Choose %s [%d]: ", numbers, def)
+			fmt.Printf("Choose %s [%d]: ", numbers, def+1)
 		} else {
 			fmt.Printf("Choose %s: ", numbers)
 		}
