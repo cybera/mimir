@@ -2,6 +2,7 @@
 # You should edit this file according to your needs or remove it from the
 # repository entirely if uneeded. It should contain sensible default
 # values for non-secrets and exclude the values for any secrets. When cloned,
-# users should copy the file to settings.toml and fill in any missing values.
+# users should copy the file to project-settings.toml and fill in any missing
+# values.
 
 downsample = true
