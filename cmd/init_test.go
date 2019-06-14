@@ -43,6 +43,44 @@ func TestInit(t *testing.T) {
 
 				t.Log("output:\n", output)
 			})
+
+			t.Run("load settings", func(t *testing.T) {
+				if output, err := test.Run("cp", "project-settings.toml.example", "project-settings.toml"); err != nil {
+					t.Fatalf("failed to copy project-settings.toml: %s", output)
+				}
+
+				args := append([]string{"--log-level", "ERROR", "run", "--rm", "jupyter"}, settingsTests[language].Command...)
+				args = append(args, settingsTests[language].Script)
+				output, err := test.Run("docker-compose", args...)
+
+				if err != nil {
+					t.Errorf("process exited with err: %v", err)
+				} else if output != settingsTests[language].Output {
+					t.Errorf("expected: %s got: %s", settingsTests[language].Output, output)
+				} else {
+					t.Log("output:\n", output)
+				}
+			})
 		})
 	}
+}
+
+type settingsTest struct {
+	Script, Output string
+	Command        []string
+}
+
+var settingsTests = map[string]settingsTest{
+	"python": settingsTest{
+		Command: []string{"python", "-B", "-c"},
+		Script: `from src import settings
+print(settings.settings["downsample"])`,
+		Output: "True\n",
+	},
+	"r": settingsTest{
+		Command: []string{"Rscript", "-e"},
+		Script: `source("/project/src/settings.R")
+print(settings["downsample"])`,
+		Output: "$downsample\n[1] TRUE\n\n",
+	},
 }
