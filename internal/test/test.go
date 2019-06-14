@@ -35,3 +35,15 @@ func GoRun(subcommand string, args ...string) (string, error) {
 
 	return b.String(), err
 }
+
+func Run(command string, args ...string) (string, error) {
+	cmd := exec.Command(command, args...)
+
+	var b strings.Builder
+	cmd.Stdout = &b
+	cmd.Stderr = &b
+
+	err := cmd.Run()
+
+	return b.String(), err
+}
