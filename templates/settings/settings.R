@@ -1,4 +1,4 @@
-settings.script.dir = getSrcDirectory(function(x) {x})
+settings.script.dir = dirname(rprojroot::thisfile())
 settings.file = file.path(settings.script.dir, "{{.ProjectSettingsPath}}")
 
 settings = RcppTOML::parseTOML(settings.file)
