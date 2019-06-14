@@ -21,7 +21,7 @@ func TestInit(t *testing.T) {
 			defer os.RemoveAll(testDir)
 			defer os.Chdir("../")
 
-			output, err := test.RunCommand("init", "-n", "-f", "--author", author, "--license", license, "--language", language)
+			output, err := test.GoRun("init", "-n", "-f", "--author", author, "--license", license, "--language", language)
 			if err != nil {
 				t.Errorf("process exited with err: %v", err)
 			}
