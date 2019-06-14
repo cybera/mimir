@@ -30,13 +30,13 @@ func TestDatasetNew(t *testing.T) {
 			viper.Set("PrimaryLanguage", language)
 			utils.WriteConfig()
 
-			output, err := test.RunCommand("dataset", "new", "titanic.csv")
+			output, err := test.GoRun("dataset", "new", "titanic.csv")
 			if err != nil {
 				t.Errorf("process exited with err: %v", err)
 			}
 			t.Log("output:\n", output)
 
-			output, err = test.RunCommand("dataset", "new", "titanic_clean.csv", "-d=titanic")
+			output, err = test.GoRun("dataset", "new", "titanic_clean.csv", "-d=titanic")
 			if err != nil {
 				t.Errorf("process exited with err: %v", err)
 			}

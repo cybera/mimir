@@ -23,7 +23,7 @@ func CreateTestDir() (string, error) {
 	return path, nil
 }
 
-func RunCommand(subcommand string, args ...string) (string, error) {
+func GoRun(subcommand string, args ...string) (string, error) {
 	fullargs := append([]string{"run", "../../main.go", subcommand}, args...)
 	cmd := exec.Command("go", fullargs...)
 
