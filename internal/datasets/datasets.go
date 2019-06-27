@@ -41,6 +41,14 @@ func (d Dataset) AbsPath() string {
 	return filepath.Join(root, dir, d.File)
 }
 
+func (d Dataset) Exists() (bool, error) {
+	if _, err := os.Stat(d.AbsPath()); os.IsNotExist(err) {
+		return false, nil
+	} else {
+		return true, err
+	}
+}
+
 func New(filename string, source Source, generated bool, dependencies []string) error {
 	ext := filepath.Ext(filename)
 	name := strings.TrimSuffix(filename, ext)
