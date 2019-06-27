@@ -16,7 +16,7 @@ func ProjectRoot() (string, error) {
 	}
 
 	for {
-		rel, err := filepath.Rel("/", dir)
+		rel, err := filepath.Rel(FSRoot, dir)
 		if err != nil {
 			return "", err
 		}
