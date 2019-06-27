@@ -16,7 +16,8 @@ var fetchDatasetCmd = &cobra.Command{
 	Use:   "fetch [name] [target]",
 	Short: "Downloads a dataset from a remote source and generates boilerplate",
 	Run: func(cmd *cobra.Command, args []string) {
-		if len(args) == 2 {
+		switch len(args) {
+		case 2:
 			src := datasets.Source{Name: source, Target: args[1]}
 			dataset := datasets.Dataset{File: args[0], Source: src, Generated: false, Dependencies: nil}
 
@@ -27,11 +28,20 @@ var fetchDatasetCmd = &cobra.Command{
 			if err := datasets.New(dataset.File, src, false, nil); err != nil {
 				log.Fatal(err)
 			}
-		} else if len(args) == 0 {
+		case 1:
+			dataset, err := datasets.Get(args[0])
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			if err := fetch(dataset); err != nil {
+				log.Fatal(err)
+			}
+		case 0:
 			if err := fetchAll(); err != nil {
 				log.Fatal(err)
 			}
-		} else {
+		default:
 			log.Fatal("unexpected number of arguments")
 		}
 	},
