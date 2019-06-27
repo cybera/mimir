@@ -3,6 +3,7 @@ package datasets
 import (
 	"fmt"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -49,6 +50,22 @@ func (d Dataset) Exists() (bool, error) {
 	}
 }
 
+func Get(name string) (Dataset, error) {
+	cleanedName := strings.TrimSuffix(name, filepath.Ext(name))
+
+	var dataset Dataset
+
+	if err := viper.UnmarshalKey("datasets."+cleanedName, &dataset); err != nil {
+		return Dataset{}, err
+	}
+
+	if dataset.File == "" {
+		return dataset, errors.New("dataset does not exist")
+	}
+
+	return dataset, nil
+}
+
 func New(filename string, source Source, generated bool, dependencies []string) error {
 	ext := filepath.Ext(filename)
 	name := strings.TrimSuffix(filename, ext)
@@ -59,22 +76,12 @@ func New(filename string, source Source, generated bool, dependencies []string) 
 
 	datasets := viper.GetStringMap("datasets")
 
-	for k := range datasets {
-		if k == name {
-			return errors.New("dataset already exists")
-		}
+	if _, err := Get(name); err == nil {
+		return errors.New("dataset already exists")
 	}
 
 	for _, dep := range dependencies {
-		found := false
-
-		for k := range datasets {
-			if k == dep {
-				found = true
-			}
-		}
-
-		if found == false {
+		if _, err := Get(dep); err != nil {
 			return fmt.Errorf("dependency %s does not exist", dep)
 		}
 	}
