@@ -45,7 +45,9 @@ var fetchDatasetCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 
-		if err := datasets.New(name, source, false, nil); err != nil {
+		src := datasets.Source{Name: source, Target: target}
+
+		if err := datasets.New(name, src, false, nil); err != nil {
 			log.Fatal(err)
 		}
 	},

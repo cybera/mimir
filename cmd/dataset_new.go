@@ -26,7 +26,9 @@ var newDatasetCmd = &cobra.Command{
 			dependencies[i] = strings.TrimSuffix(d, ext)
 		}
 
-		if err := datasets.New(args[0], "local", generated, dependencies); err != nil {
+		source := datasets.Source{Name: "local", Target: "", Args: nil}
+
+		if err := datasets.New(args[0], source, generated, dependencies); err != nil {
 			log.Fatal(err)
 		}
 	},

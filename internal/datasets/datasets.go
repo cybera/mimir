@@ -14,14 +14,20 @@ import (
 	"github.com/spf13/viper"
 )
 
+type Source struct {
+	Name   string
+	Target string
+	Args   interface{}
+}
+
 type Dataset struct {
 	File         string
-	Source       string
+	Source       Source
 	Generated    bool
 	Dependencies []string
 }
 
-func New(filename, source string, generated bool, dependencies []string) error {
+func New(filename string, source Source, generated bool, dependencies []string) error {
 	ext := filepath.Ext(filename)
 	name := strings.TrimSuffix(filename, ext)
 
@@ -51,7 +57,7 @@ func New(filename, source string, generated bool, dependencies []string) error {
 		}
 	}
 
-	datasets[name] = Dataset{File: filename, Source: "local", Generated: generated, Dependencies: dependencies}
+	datasets[name] = Dataset{File: filename, Source: source, Generated: generated, Dependencies: dependencies}
 
 	var datasetPath, src string
 	lang := viper.GetString("PrimaryLanguage")
