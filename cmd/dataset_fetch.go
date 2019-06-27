@@ -3,11 +3,9 @@ package cmd
 import (
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/cybera/ccds/internal/datasets"
 	"github.com/cybera/ccds/internal/fetchers"
-	"github.com/cybera/ccds/internal/paths"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -54,7 +52,6 @@ func fetchAll() error {
 }
 
 func fetch(dataset datasets.Dataset) error {
-	name := dataset.File
 	target := dataset.Source.Target
 
 	if dataset.Source.Name == "local" {
@@ -71,10 +68,7 @@ func fetch(dataset datasets.Dataset) error {
 		return err
 	}
 
-	root := viper.GetString("ProjectRoot")
-	path := filepath.Join(root, paths.RawDatasets(), name)
-
-	file, err := os.Create(path)
+	file, err := os.Create(dataset.AbsPath())
 	if err != nil {
 		return err
 	}

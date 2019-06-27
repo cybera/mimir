@@ -27,6 +27,20 @@ type Dataset struct {
 	Dependencies []string
 }
 
+func (d Dataset) AbsPath() string {
+	root := viper.GetString("ProjectRoot")
+
+	var dir string
+
+	if d.Generated {
+		dir = paths.ProcessedDatasets()
+	} else {
+		dir = paths.RawDatasets()
+	}
+
+	return filepath.Join(root, dir, d.File)
+}
+
 func New(filename string, source Source, generated bool, dependencies []string) error {
 	ext := filepath.Ext(filename)
 	name := strings.TrimSuffix(filename, ext)
@@ -57,22 +71,16 @@ func New(filename string, source Source, generated bool, dependencies []string) 
 		}
 	}
 
-	datasets[name] = Dataset{File: filename, Source: source, Generated: generated, Dependencies: dependencies}
+	dataset := Dataset{File: filename, Source: source, Generated: generated, Dependencies: dependencies}
+	datasets[name] = dataset
 
-	var datasetPath, src string
 	lang := viper.GetString("PrimaryLanguage")
 	root := viper.GetString("ProjectRoot")
 
-	if generated {
-		datasetPath = filepath.Join(root, paths.ProcessedDatasets(), filename)
-	} else {
-		datasetPath = filepath.Join(root, paths.RawDatasets(), filename)
-	}
-
-	src = "datasets/load" + languages.Extensions[lang]
+	src := "datasets/load" + languages.Extensions[lang]
 	dest := filepath.Join(root, paths.DatasetsCode(), name+languages.Extensions[lang])
 	// Relative path from import code directory to dataset file
-	relPath, _ := filepath.Rel(filepath.Join(root, paths.DatasetsCode()), datasetPath)
+	relPath, _ := filepath.Rel(filepath.Join(root, paths.DatasetsCode()), dataset.AbsPath())
 
 	data := struct {
 		Name, RelPath string
