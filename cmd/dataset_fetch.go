@@ -53,6 +53,12 @@ func fetchAll() error {
 	}
 
 	for _, dataset := range datasets {
+		if exists, err := dataset.Exists(); err != nil {
+			log.Fatal(err)
+		} else if exists {
+			continue
+		}
+
 		if err := fetch(dataset); err != nil {
 			log.Println(err)
 		}
