@@ -7,7 +7,6 @@ import (
 	"github.com/cybera/ccds/internal/datasets"
 	"github.com/cybera/ccds/internal/fetchers"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 )
 
 var source string
@@ -48,9 +47,10 @@ var fetchDatasetCmd = &cobra.Command{
 }
 
 func fetchAll() error {
-	var datasets map[string]datasets.Dataset
-
-	viper.UnmarshalKey("Datasets", &datasets)
+	datasets, err := datasets.GetAll()
+	if err != nil {
+		return err
+	}
 
 	for _, dataset := range datasets {
 		if err := fetch(dataset); err != nil {

@@ -66,6 +66,14 @@ func Get(name string) (Dataset, error) {
 	return dataset, nil
 }
 
+func GetAll() (map[string]Dataset, error) {
+	var datasets map[string]Dataset
+
+	err := viper.UnmarshalKey("datasets", &datasets)
+
+	return datasets, err
+}
+
 func New(filename string, source Source, generated bool, dependencies []string) error {
 	ext := filepath.Ext(filename)
 	name := strings.TrimSuffix(filename, ext)
