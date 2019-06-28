@@ -34,6 +34,26 @@ ccds dataset new generated_dataset.csv -d="raw_dataset"
 
 Note that the file extension is optional when declaring dependencies.
 
+To fetch a dataset from a remote source (currently only OpenStack Swift is supported):
+
+```bash
+ccds dataset fetch name.csv bucket/object.csv
+```
+
+The dataset's metadata is saved so it can easily be re-fetched later by other users.
+
+To update or fetch a previously saved dataset:
+
+```bash
+ccds dataset fetch name
+```
+
+Or to fetch all saved datasets after cloning a fresh copy of your repository:
+
+```bash
+ccds dataset fetch
+```
+
 ### Jupyter
 
 The `jupyter` subcommand manages the Jupyter Labs Docker container:
