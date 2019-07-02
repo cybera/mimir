@@ -20,6 +20,8 @@ var fetchDatasetCmd = &cobra.Command{
 			src := datasets.Source{Name: source, Target: args[1]}
 			dataset := datasets.Dataset{File: args[0], Source: src, Generated: false, Dependencies: nil}
 
+			log.Println("Fetching dataset...")
+
 			if err := fetch(dataset); err != nil {
 				log.Fatal(err)
 			}
