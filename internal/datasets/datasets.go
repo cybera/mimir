@@ -74,12 +74,12 @@ func GetAll() (map[string]Dataset, error) {
 	return datasets, err
 }
 
-func New(filename string, source Source, generated bool, dependencies []string) error {
-	ext := filepath.Ext(filename)
-	name := strings.TrimSuffix(filename, ext)
+func (d Dataset) GenerateCode() error {
+	ext := filepath.Ext(d.File)
+	name := strings.TrimSuffix(d.File, ext)
 
 	if ext == "" {
-		return errors.New("please include the file extension")
+		return errors.New("missing file extension")
 	}
 
 	datasets := viper.GetStringMap("datasets")
@@ -88,14 +88,13 @@ func New(filename string, source Source, generated bool, dependencies []string) 
 		return errors.New("dataset already exists")
 	}
 
-	for _, dep := range dependencies {
+	for _, dep := range d.Dependencies {
 		if _, err := Get(dep); err != nil {
 			return fmt.Errorf("dependency %s does not exist", dep)
 		}
 	}
 
-	dataset := Dataset{File: filename, Source: source, Generated: generated, Dependencies: dependencies}
-	datasets[name] = dataset
+	datasets[name] = d
 
 	lang := viper.GetString("PrimaryLanguage")
 	root := viper.GetString("ProjectRoot")
@@ -103,7 +102,7 @@ func New(filename string, source Source, generated bool, dependencies []string) 
 	src := "datasets/load" + languages.Extensions[lang]
 	dest := filepath.Join(root, paths.DatasetsCode(), name+languages.Extensions[lang])
 	// Relative path from import code directory to dataset file
-	relPath, _ := filepath.Rel(filepath.Join(root, paths.DatasetsCode()), dataset.AbsPath())
+	relPath, _ := filepath.Rel(filepath.Join(root, paths.DatasetsCode()), d.AbsPath())
 
 	data := struct {
 		Name, RelPath string

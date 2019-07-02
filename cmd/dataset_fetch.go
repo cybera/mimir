@@ -24,7 +24,7 @@ var fetchDatasetCmd = &cobra.Command{
 				log.Fatal(err)
 			}
 
-			if err := datasets.New(dataset.File, src, false, nil); err != nil {
+			if err := dataset.GenerateCode(); err != nil {
 				log.Fatal(err)
 			}
 		case 1:

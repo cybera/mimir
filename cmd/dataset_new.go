@@ -27,8 +27,9 @@ var newDatasetCmd = &cobra.Command{
 		}
 
 		source := datasets.Source{Name: "local", Target: "", Args: nil}
+		dataset := datasets.Dataset{File: args[0], Source: source, Generated: generated, Dependencies: dependencies}
 
-		if err := datasets.New(args[0], source, generated, dependencies); err != nil {
+		if err := dataset.GenerateCode(); err != nil {
 			log.Fatal(err)
 		}
 	},
