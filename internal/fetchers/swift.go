@@ -39,5 +39,5 @@ func (f SwiftFetcher) Fetch() ([]byte, error) {
 }
 
 func init() {
-	factories["swift"] = NewSwiftFetcher
+	Factories["swift"] = NewSwiftFetcher
 }
