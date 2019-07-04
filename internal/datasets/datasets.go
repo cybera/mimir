@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/cybera/ccds/internal/fetchers"
 	"github.com/cybera/ccds/internal/languages"
 	"github.com/cybera/ccds/internal/paths"
 	"github.com/cybera/ccds/internal/templates"
@@ -72,6 +73,45 @@ func GetAll() (map[string]Dataset, error) {
 	err := viper.UnmarshalKey("datasets", &datasets)
 
 	return datasets, err
+}
+
+func (d Dataset) FetchAndWrite() error {
+	bytes, err := d.Fetch()
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Create(d.AbsPath())
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	if _, err := file.Write(bytes); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d Dataset) Fetch() ([]byte, error) {
+	source := d.Source
+
+	if source.Name == "local" {
+		return nil, errors.New("can't fetch a local dataset")
+	}
+
+	fetcher, err := fetchers.NewFetcher(source.Name, source.Target, source.Args)
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := fetcher.Fetch()
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes, nil
 }
 
 func (d Dataset) GenerateCode() error {

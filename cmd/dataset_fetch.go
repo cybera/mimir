@@ -2,10 +2,8 @@ package cmd
 
 import (
 	"log"
-	"os"
 
 	"github.com/cybera/ccds/internal/datasets"
-	"github.com/cybera/ccds/internal/fetchers"
 	"github.com/spf13/cobra"
 )
 
@@ -70,33 +68,11 @@ func fetchAll() error {
 }
 
 func fetch(dataset datasets.Dataset) error {
-	target := dataset.Source.Target
-
 	if dataset.Source.Name == "local" {
 		return nil
 	}
 
-	fetcher, err := fetchers.NewFetcher(source, target, nil)
-	if err != nil {
-		return err
-	}
-
-	bytes, err := fetcher.Fetch()
-	if err != nil {
-		return err
-	}
-
-	file, err := os.Create(dataset.AbsPath())
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	if _, err := file.Write(bytes); err != nil {
-		return err
-	}
-
-	return nil
+	return dataset.FetchAndWrite()
 }
 
 func init() {
