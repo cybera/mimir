@@ -2,6 +2,7 @@ package utils
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
 	"strings"
@@ -23,6 +24,26 @@ func GetInput(reader *bufio.Reader, nonInteractive bool) string {
 
 	input, _ := reader.ReadString('\n')
 	return Chomp(input)
+}
+
+func GetYesNo(reader *bufio.Reader, question string, def, nonInteractive bool) bool {
+	for {
+		fmt.Print(question)
+		input := GetInput(reader, nonInteractive)
+
+		switch input {
+		case "yes":
+			fallthrough
+		case "y":
+			return true
+		case "no":
+			fallthrough
+		case "n":
+			return false
+		case "":
+			return def
+		}
+	}
 }
 
 func Contains(slice []string, item string) bool {
