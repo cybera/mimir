@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-var nonInteractive bool
+var nonInteractive, yesToAll bool
 
 var rootCmd = &cobra.Command{
 	Use:   "ccds",
@@ -44,4 +44,5 @@ func Execute() {
 
 func init() {
 	rootCmd.PersistentFlags().BoolVarP(&nonInteractive, "non-interactive", "n", false, "Error if any user input is required")
+	rootCmd.PersistentFlags().BoolVarP(&yesToAll, "yes", "y", false, "Answer yes to any prompts automatically")
 }
