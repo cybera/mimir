@@ -21,7 +21,7 @@ import (
 )
 
 var author, license, language string
-var force, nonInteractive bool
+var force bool
 
 var initCmd = &cobra.Command{
 	Use:              "init",
@@ -103,7 +103,6 @@ func init() {
 	initCmd.Flags().StringVar(&license, "license", "", "Project license")
 	initCmd.Flags().StringVar(&language, "language", "", "Which programming language to use")
 	initCmd.Flags().BoolVarP(&force, "force", "f", false, "Ignore existing files and directories")
-	initCmd.Flags().BoolVarP(&nonInteractive, "non-interactive", "n", false, "Error if any user input is required")
 }
 
 func ask(reader *bufio.Reader, text string, choices []string, def int) string {

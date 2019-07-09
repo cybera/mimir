@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/viper"
 )
 
+var nonInteractive bool
+
 var rootCmd = &cobra.Command{
 	Use:   "ccds",
 	Short: "CCDS is a data science project generator",
@@ -38,4 +40,8 @@ func Execute() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+}
+
+func init() {
+	rootCmd.PersistentFlags().BoolVarP(&nonInteractive, "non-interactive", "n", false, "Error if any user input is required")
 }
