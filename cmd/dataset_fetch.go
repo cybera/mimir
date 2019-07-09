@@ -33,6 +33,8 @@ var fetchDatasetCmd = &cobra.Command{
 				log.Fatal(err)
 			}
 
+			log.Println("Fetching dataset...")
+
 			if err := fetch(dataset); err != nil {
 				log.Fatal(err)
 			}
@@ -58,6 +60,8 @@ func fetchAll() error {
 		} else if exists {
 			continue
 		}
+
+		log.Printf("Fetching dataset %s...", dataset.Source.Target)
 
 		if err := fetch(dataset); err != nil {
 			log.Println(err)
