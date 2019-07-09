@@ -52,18 +52,8 @@ var initCmd = &cobra.Command{
 		}
 
 		if len(files) > 0 && !force {
-			fmt.Print("This directory is not empty, initialize anyways? [y/N]: ")
-
-			for {
-				input := utils.GetInput(reader, nonInteractive)
-
-				if input == "y" {
-					break
-				} else if input == "n" || input == "" {
-					os.Exit(0)
-				}
-
-				fmt.Print("Please answer [y/N]: ")
+			if !utils.GetYesNo(reader, "This directory is not empty, initialize anyways? [y/N]: ", false, nonInteractive) {
+				os.Exit(0)
 			}
 		}
 
