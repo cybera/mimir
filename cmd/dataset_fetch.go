@@ -1,9 +1,13 @@
 package cmd
 
 import (
+	"bufio"
+	"fmt"
 	"log"
+	"os"
 
 	"github.com/cybera/ccds/internal/datasets"
+	"github.com/cybera/ccds/internal/utils"
 	"github.com/spf13/cobra"
 )
 
@@ -13,6 +17,8 @@ var fetchDatasetCmd = &cobra.Command{
 	Use:   "fetch [name] [target]",
 	Short: "Downloads a dataset from a remote source and generates boilerplate",
 	Run: func(cmd *cobra.Command, args []string) {
+		reader := bufio.NewReader(os.Stdin)
+
 		switch len(args) {
 		case 2:
 			src := datasets.Source{Name: source, Target: args[1]}
@@ -33,12 +39,29 @@ var fetchDatasetCmd = &cobra.Command{
 				log.Fatal(err)
 			}
 
+			exists, err := dataset.Exists()
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			if exists {
+				question := fmt.Sprintf("%s already exists, fetch a new copy? [y/N]: ", args[0])
+				if !yesToAll || !utils.GetYesNo(reader, question, false, nonInteractive) {
+					os.Exit(0)
+				}
+			}
+
 			log.Println("Fetching dataset...")
 
 			if err := fetch(dataset); err != nil {
 				log.Fatal(err)
 			}
 		case 0:
+			question := "This will attempt to fetch all datasets, continue? [y/N]: "
+			if !yesToAll || !utils.GetYesNo(reader, question, false, nonInteractive) {
+				os.Exit(0)
+			}
+
 			if err := fetchAll(); err != nil {
 				log.Fatal(err)
 			}
