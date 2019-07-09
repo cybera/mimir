@@ -55,7 +55,7 @@ var initCmd = &cobra.Command{
 			fmt.Print("This directory is not empty, initialize anyways? [y/N]: ")
 
 			for {
-				input := getInput(reader)
+				input := utils.GetInput(reader, nonInteractive)
 
 				if input == "y" {
 					break
@@ -71,7 +71,7 @@ var initCmd = &cobra.Command{
 
 		if author == "" {
 			fmt.Print("Author (Your name or organization/company/team): ")
-			author = getInput(reader)
+			author = utils.GetInput(reader, nonInteractive)
 		}
 
 		if license == "" {
@@ -137,7 +137,7 @@ func ask(reader *bufio.Reader, text string, choices []string, def int) string {
 		} else {
 			fmt.Printf("Choose %s: ", numbers)
 		}
-		input := getInput(reader)
+		input := utils.GetInput(reader, nonInteractive)
 
 		if def > 0 && input == "" {
 			choice = def
@@ -153,15 +153,6 @@ func ask(reader *bufio.Reader, text string, choices []string, def int) string {
 	}
 
 	return choices[choice-1]
-}
-
-func getInput(reader *bufio.Reader) string {
-	if nonInteractive {
-		log.Fatal("\nerror: input required in non-interactive mode")
-	}
-
-	input, _ := reader.ReadString('\n')
-	return utils.Chomp(input)
 }
 
 func createSkeleton() error {
