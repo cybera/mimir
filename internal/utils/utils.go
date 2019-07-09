@@ -1,6 +1,8 @@
 package utils
 
 import (
+	"bufio"
+	"log"
 	"os"
 	"strings"
 
@@ -12,6 +14,15 @@ import (
 
 func Chomp(s string) string {
 	return strings.Trim(s, " \r\n")
+}
+
+func GetInput(reader *bufio.Reader, nonInteractive bool) string {
+	if nonInteractive {
+		log.Fatal("\nerror: input required in non-interactive mode")
+	}
+
+	input, _ := reader.ReadString('\n')
+	return Chomp(input)
 }
 
 func Contains(slice []string, item string) bool {
