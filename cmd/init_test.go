@@ -61,6 +61,20 @@ func TestInit(t *testing.T) {
 					t.Log("output:\n", output)
 				}
 			})
+
+			t.Run("verify gitignore", func(t *testing.T) {
+				for _, filepath := range gitIgnoreTests {
+					if file, err := os.Create(filepath); err != nil {
+						t.Fatalf("failed to create gitignore test file: %s", filepath)
+					} else {
+						file.Close()
+					}
+
+					if _, err := test.Run("git", "add", filepath); err == nil {
+						t.Errorf("%s should be gitignored but is not", filepath)
+					}
+				}
+			})
 		})
 	}
 }
@@ -83,4 +97,9 @@ print(settings.settings["downsample"])`,
 print(settings["downsample"])`,
 		Output: "$downsample\n[1] TRUE\n\n",
 	},
+}
+
+var gitIgnoreTests = []string{
+	"project-settings.toml",
+	"data/raw/iris.csv",
 }
