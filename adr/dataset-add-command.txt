@@ -1,0 +1,38 @@
+Dataset add command syntax
+
+Status: draft
+
+Context:
+
+We're trying to establish what the user workflows are going to be for
+adding different types of datasets. We'd like those workflows to use
+consistent idioms so a user isn't confused, and their experience with
+one workflow helps make understanding other workflows clearer.
+
+Decision:
+
+Our workflows should be as follows:
+
+local:
+  $ ccds dataset add kittykats.csv --from /home/cam/download/adoption.csv
+   
+generated:
+  $ ccds dataset add bestkats.csv --generated --dependencies=kittykats
+ 
+remote:
+  $ ccds dataset add breedinfo.csv --source swift --from spca/breedinfo.csv
+
+Future decisions:
+
+We'll likely want a more expressive form of describing where remote datasets are, especially as all the datasets may not be in the same remote location:
+
+  $ ccds remote add rac --oooh-magic-oooh
+  $ ccds dataset add breedinfo.csv --remote rac --from spca/breedinfo.csv
+
+Assumptions:
+
+Consequences:
+
+
+
+
