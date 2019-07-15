@@ -97,8 +97,8 @@ func (d Dataset) FetchAndWrite() error {
 func (d Dataset) Fetch() ([]byte, error) {
 	source := d.Source
 
-	if source.Name == "local" {
-		return nil, errors.New("can't fetch a local dataset")
+	if d.Generated {
+		return nil, errors.New("can't fetch a generated dataset")
 	}
 
 	fetcher, err := fetchers.NewFetcher(source.Name, source.Target, source.Args)

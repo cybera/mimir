@@ -11,7 +11,7 @@ import (
 	"github.com/spf13/viper"
 )
 
-func TestDatasetNew(t *testing.T) {
+func TestDatasetAdd(t *testing.T) {
 	testDir, err := test.CreateTestDir()
 	if err != nil {
 		t.Fatal(err)
@@ -30,13 +30,22 @@ func TestDatasetNew(t *testing.T) {
 			viper.Set("PrimaryLanguage", language)
 			utils.WriteConfig()
 
-			output, err := test.RunCommand("dataset", "new", "titanic.csv")
+			// Add local dataset
+			output, err := test.RunCommand("dataset", "add", "titanic.csv", "-f", "iceberg.csv")
 			if err != nil {
 				t.Errorf("process exited with err: %v", err)
 			}
 			t.Log("output:\n", output)
 
-			output, err = test.RunCommand("dataset", "new", "titanic_clean.csv", "-d=titanic")
+			// Add generated dataset
+			output, err = test.RunCommand("dataset", "add", "titanic_clean.csv", "-d=titanic")
+			if err != nil {
+				t.Errorf("process exited with err: %v", err)
+			}
+			t.Log("output:\n", output)
+
+			// Add remote dataset
+			output, err = test.RunCommand("dataset", "add", "titanic_results.csv", "-s", "swift", "-f", "newfoundland/iceberg.csv")
 			if err != nil {
 				t.Errorf("process exited with err: %v", err)
 			}

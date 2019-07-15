@@ -11,28 +11,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var source string
-
 var fetchDatasetCmd = &cobra.Command{
-	Use:   "fetch [name] [target]",
-	Short: "Downloads a dataset from a remote source and generates boilerplate",
+	Use:   "fetch [name]",
+	Short: "Downloads an added dataset",
 	Run: func(cmd *cobra.Command, args []string) {
 		reader := bufio.NewReader(os.Stdin)
 
 		switch len(args) {
-		case 2:
-			src := datasets.Source{Name: source, Target: args[1]}
-			dataset := datasets.Dataset{File: args[0], Source: src, Generated: false, Dependencies: nil}
-
-			log.Println("Fetching dataset...")
-
-			if err := fetch(dataset); err != nil {
-				log.Fatal(err)
-			}
-
-			if err := dataset.GenerateCode(); err != nil {
-				log.Fatal(err)
-			}
 		case 1:
 			dataset, err := datasets.Get(args[0])
 			if err != nil {
@@ -95,7 +80,7 @@ func fetchAll() error {
 }
 
 func fetch(dataset datasets.Dataset) error {
-	if dataset.Source.Name == "local" {
+	if dataset.Generated {
 		return nil
 	}
 
@@ -104,5 +89,4 @@ func fetch(dataset datasets.Dataset) error {
 
 func init() {
 	datasetCmd.AddCommand(fetchDatasetCmd)
-	fetchDatasetCmd.Flags().StringVarP(&source, "source", "s", "swift", "How to access the dataset")
 }
