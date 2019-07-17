@@ -25,15 +25,7 @@ func CreateTestDir() (string, error) {
 
 func GoRun(subcommand string, args ...string) (string, error) {
 	fullargs := append([]string{"run", "../../main.go", subcommand}, args...)
-	cmd := exec.Command("go", fullargs...)
-
-	var b strings.Builder
-	cmd.Stdout = &b
-	cmd.Stderr = &b
-
-	err := cmd.Run()
-
-	return b.String(), err
+	return Run("go", fullargs...)
 }
 
 func Run(command string, args ...string) (string, error) {
