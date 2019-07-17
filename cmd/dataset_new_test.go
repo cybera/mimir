@@ -12,11 +12,11 @@ import (
 )
 
 func TestDatasetNew(t *testing.T) {
-	testDir, err := test.CreateTestDir()
+	err := test.CreateTestDir("_test")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(testDir)
+	defer os.RemoveAll("_test")
 	defer os.Chdir("../")
 
 	for _, d := range []string{".ccds", paths.DatasetsCode()} {

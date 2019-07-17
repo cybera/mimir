@@ -21,11 +21,11 @@ func TestInit(t *testing.T) {
 
 	for _, language = range languages.Supported {
 		t.Run(language, func(t *testing.T) {
-			testDir, err := test.CreateTestDir()
+			err := test.CreateTestDir("_test")
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer os.RemoveAll(testDir)
+			defer os.RemoveAll("_test")
 			defer os.Chdir("../")
 
 			output, err := test.GoRun("init", "-n", "-f", "--author", author, "--license", license, "--language", language)
