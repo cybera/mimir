@@ -90,18 +90,8 @@ var initCmd = &cobra.Command{
 		viper.Set("License", license)
 		viper.Set("PrimaryLanguage", language)
 
-		log.Println("Creating project skeleton...")
-		if err := createSkeleton(); err != nil {
-			log.Fatal(err)
-		}
-
-		if err := writeLicense(author, license); err != nil {
-			log.Fatal(err)
-		}
-
-		log.Println("Initializing git repository...")
-		if err := initRepo(); err != nil {
-			log.Fatal(err)
+		if err := initProject(projectRoot, author, license, language); err != nil {
+			log.Fatalf("project initialization failed: %s", err)
 		}
 	},
 }
@@ -163,10 +153,25 @@ func getInput(reader *bufio.Reader) string {
 	return utils.Chomp(input)
 }
 
-func createSkeleton() error {
-	projectRoot := viper.GetString("ProjectRoot")
-	language := viper.GetString("PrimaryLanguage")
+func initProject(projectRoot, author, license, language string) error {
+	log.Println("Creating project skeleton...")
+	if err := createSkeleton(projectRoot, language); err != nil {
+		return err
+	}
 
+	if err := writeLicense(author, license); err != nil {
+		return err
+	}
+
+	log.Println("Initializing git repository...")
+	if err := initRepo(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func createSkeleton(projectRoot, language string) error {
 	// Key is the directory path, value is whether to create a .gitkeep file
 	directories := map[string]bool{
 		".ccds":             false,
