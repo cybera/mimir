@@ -21,7 +21,7 @@ The command will then ask a few questions about how to configure the project.
 Create a new raw dataset by running:
 
 ```bash
-ccds dataset new raw_dataset.csv
+ccds dataset add raw_dataset.csv
 ```
 
 Note that file extension is currently required to detect the format, though only csv is currently supported.
@@ -29,10 +29,28 @@ Note that file extension is currently required to detect the format, though only
 Alternatively, to create a generated dataset that depends on a raw dataset, run:
 
 ```bash
-ccds dataset new generated_dataset.csv -d="raw_dataset"
+ccds dataset add generated_dataset.csv -d="raw_dataset"
 ```
 
 Note that the file extension is optional when declaring dependencies.
+
+To fetch a remote dataset:
+
+```bash
+ccds dataset fetch name.csv
+```
+
+To fetch all remote datasets:
+
+```bash
+ccds dataset fetch name
+```
+
+Or to fetch all saved datasets after cloning a fresh copy of your repository:
+
+```bash
+ccds dataset fetch
+```
 
 ### Jupyter
 
