@@ -7,11 +7,12 @@ import (
 
 	"github.com/cybera/ccds/internal/utils"
 
+	"github.com/cybera/ccds/internal/fetchers"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
 
-func Create(file string, generated bool, dependencies []string) (Dataset, error) {
+func Create(file string, fetcherConfig fetchers.FetcherConfig, generated bool, dependencies []string) (Dataset, error) {
 	ext := filepath.Ext(file)
 	if ext == "" {
 		return Dataset{}, errors.New("missing file extension")
@@ -28,7 +29,7 @@ func Create(file string, generated bool, dependencies []string) (Dataset, error)
 		}
 	}
 
-	dataset := Dataset{File: file, Generated: generated, Dependencies: dependencies}
+	dataset := Dataset{File: file, FetcherConfig: fetcherConfig, Generated: generated, Dependencies: dependencies}
 
 	viper.Set("datasets."+name, dataset)
 	if err := utils.WriteConfig(); err != nil {

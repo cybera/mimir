@@ -2,9 +2,11 @@ package datasets
 
 import (
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/cybera/ccds/internal/fetchers"
 	"github.com/cybera/ccds/internal/languages"
 	"github.com/cybera/ccds/internal/paths"
 	"github.com/cybera/ccds/internal/templates"
@@ -14,6 +16,7 @@ import (
 
 type Dataset struct {
 	File          string
+	FetcherConfig fetchers.FetcherConfig
 	Generated     bool
 	Dependencies  []string
 }
@@ -30,6 +33,51 @@ func (d Dataset) AbsPath() string {
 	}
 
 	return filepath.Join(root, dir, d.File)
+}
+
+func (d Dataset) Exists() (bool, error) {
+	if _, err := os.Stat(d.AbsPath()); os.IsNotExist(err) {
+		return false, nil
+	} else {
+		return true, err
+	}
+}
+
+func (d Dataset) FetchAndWrite() error {
+	bytes, err := d.Fetch()
+	if err != nil {
+		return err
+	}
+
+	file, err := os.Create(d.AbsPath())
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+
+	if _, err := file.Write(bytes); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d Dataset) Fetch() ([]byte, error) {
+	if d.Generated {
+		return nil, errors.New("can't fetch a generated dataset")
+	}
+
+	fetcher, err := fetchers.NewFetcher(d.FetcherConfig)
+	if err != nil {
+		return nil, err
+	}
+
+	bytes, err := fetcher.Fetch()
+	if err != nil {
+		return nil, err
+	}
+
+	return bytes, nil
 }
 
 func (d Dataset) GenerateCode() error {
