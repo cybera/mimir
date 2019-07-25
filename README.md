@@ -85,7 +85,7 @@ This will make CCDS aware of the dataset's source location and generate import c
 ### Stored somewhere else
 You can import datasets stored in an external cloudprovider using OpenStack. You'll need to ensure that you've saved your OpenStack security credentials and sourced them. Currently CCDS only supports fetching through Swift, so [ensure you have it installed](https://swift.org/getting-started/#using-the-repl)
 
-Let's say I have a public container called `datasets_container` that hosts my source dataset, `cloud_source.csv`.
+Let's say I have a container called `datasets_container` that hosts my source dataset, `cloud_source.csv`.
 
 ```bash
 ccds dataset add cloud_data.csv --source swift --from datasets_container/cloud_source.csv
