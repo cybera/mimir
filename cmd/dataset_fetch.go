@@ -30,7 +30,7 @@ var fetchDatasetCmd = &cobra.Command{
 			}
 
 			if exists {
-				question := fmt.Sprintf("%s already exists, fetch a new copy? [y/N]: ", args[0])
+				question := fmt.Sprintf("%s already exists, fetch a new copy?", args[0])
 				if !yesToAll && !utils.GetYesNo(reader, question, false, nonInteractive) {
 					os.Exit(0)
 				}
@@ -42,7 +42,7 @@ var fetchDatasetCmd = &cobra.Command{
 				log.Fatal(err)
 			}
 		case 0:
-			question := "This will attempt to fetch all datasets, continue? [y/N]: "
+			question := "This will attempt to fetch all datasets, continue?"
 			if !yesToAll && !utils.GetYesNo(reader, question, false, nonInteractive) {
 				os.Exit(0)
 			}

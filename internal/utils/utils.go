@@ -28,7 +28,15 @@ func GetInput(reader *bufio.Reader, nonInteractive bool) string {
 
 func GetYesNo(reader *bufio.Reader, question string, def, nonInteractive bool) bool {
 	for {
-		fmt.Print(question)
+		var suffix string
+
+		if def {
+			suffix = " [Y/n]: "
+		} else {
+			suffix = " [y/N]: "
+		}
+
+		fmt.Print(question, suffix)
 		input := GetInput(reader, nonInteractive)
 
 		switch input {

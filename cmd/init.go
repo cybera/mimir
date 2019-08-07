@@ -52,7 +52,7 @@ var initCmd = &cobra.Command{
 		}
 
 		if len(files) > 0 && !force {
-			if !utils.GetYesNo(reader, "This directory is not empty, initialize anyways? [y/N]: ", false, nonInteractive) {
+			if !utils.GetYesNo(reader, "This directory is not empty, initialize anyways?", false, nonInteractive) {
 				os.Exit(0)
 			}
 		}
