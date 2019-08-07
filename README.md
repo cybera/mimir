@@ -71,7 +71,7 @@ Other files created include a `LICENSE` file, an initialized git repository, and
 ## Configuring Datasets
 Before you can jump into working with your datasets, you need to let CCDS know where it can find them.
 
-Please note, CSV is the only file format currently supported for datasets. You can view and edit dataset configuration at `.ccds/project-metadata.toml`.
+Please note, CSV is the only file format currently supported for datasets.
 
 ### Stored on your computer
 If you have a raw dataset saved on your computer that you'd like to add, run the following command:
