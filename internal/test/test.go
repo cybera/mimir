@@ -1,11 +1,13 @@
 package test
 
 import (
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
+	"github.com/cybera/ccds/internal/utils"
 	"github.com/pkg/errors"
 )
 
@@ -47,4 +49,13 @@ func Run(command string, args ...string) (string, error) {
 	err := cmd.Run()
 
 	return b.String(), err
+}
+
+func FileContentsEquals(path, expected string) (bool, error) {
+	contents, err := ioutil.ReadFile(path)
+	if err != nil {
+		return false, errors.Wrap(err, "couldn't read file")
+	}
+
+	return utils.Chomp(string(contents)) == utils.Chomp(expected), nil
 }

@@ -21,7 +21,7 @@ import (
 )
 
 var author, license, language string
-var force, nonInteractive bool
+var force bool
 
 var initCmd = &cobra.Command{
 	Use:              "init",
@@ -52,18 +52,8 @@ var initCmd = &cobra.Command{
 		}
 
 		if len(files) > 0 && !force {
-			fmt.Print("This directory is not empty, initialize anyways? [y/N]: ")
-
-			for {
-				input := getInput(reader)
-
-				if input == "y" {
-					break
-				} else if input == "n" || input == "" {
-					os.Exit(0)
-				}
-
-				fmt.Print("Please answer [y/N]: ")
+			if !utils.GetYesNo(reader, "This directory is not empty, initialize anyways?", false, nonInteractive) {
+				os.Exit(0)
 			}
 		}
 
@@ -71,7 +61,7 @@ var initCmd = &cobra.Command{
 
 		if author == "" {
 			fmt.Print("Author (Your name or organization/company/team): ")
-			author = getInput(reader)
+			author = utils.GetInput(reader, nonInteractive)
 		}
 
 		if license == "" {
@@ -103,7 +93,6 @@ func init() {
 	initCmd.Flags().StringVar(&license, "license", "", "Project license")
 	initCmd.Flags().StringVar(&language, "language", "", "Which programming language to use")
 	initCmd.Flags().BoolVarP(&force, "force", "f", false, "Ignore existing files and directories")
-	initCmd.Flags().BoolVarP(&nonInteractive, "non-interactive", "n", false, "Error if any user input is required")
 }
 
 func ask(reader *bufio.Reader, text string, choices []string, def int) string {
@@ -122,13 +111,14 @@ func ask(reader *bufio.Reader, text string, choices []string, def int) string {
 
 	for {
 		if def >= 0 {
-			fmt.Printf("Choose %s [%d]: ", numbers, def+1)
+			def++
+			fmt.Printf("Choose %s [%d]: ", numbers, def)
 		} else {
 			fmt.Printf("Choose %s: ", numbers)
 		}
-		input := getInput(reader)
+		input := utils.GetInput(reader, nonInteractive)
 
-		if def >= 0 && input == "" {
+		if def > 0 && input == "" {
 			choice = def
 			break
 		}
