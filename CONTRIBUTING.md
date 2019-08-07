@@ -6,7 +6,7 @@ Make sure you have Go 1.11+ installed and you'll probably want `$GOPATH/bin` in 
 
 ```bash
 $ go get -u github.com/gobuffalo/packr/v2/packr2
-$ git clone https://github.com/cybera/ccds
+$ git clone https://github.com/cybera/mimir
 ```
 
 That's it, the first time you run or build it, all dependencies will be installed automatically.
@@ -23,7 +23,7 @@ Or build it first:
 
 ```bash
 packr2 build
-./ccds
+./mimir
 ```
 
 Note the use of `packr2` rather than `go build`. Packr is a tool to bundle static assets in Go binaries and it wraps the usual build and install commands.

@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cybera/ccds/internal/utils"
+	"github.com/cybera/mimir/internal/utils"
 
-	"github.com/cybera/ccds/internal/fetchers"
+	"github.com/cybera/mimir/internal/fetchers"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )

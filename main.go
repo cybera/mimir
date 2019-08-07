@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/cybera/ccds/cmd"
+	"github.com/cybera/mimir/cmd"
 )
 
 func main() {

@@ -9,7 +9,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/cybera/ccds/internal/test"
+	"github.com/cybera/mimir/internal/test"
 )
 
 func TestJupyter(t *testing.T) {

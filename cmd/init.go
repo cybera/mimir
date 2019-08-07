@@ -11,10 +11,10 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/cybera/ccds/internal/languages"
-	"github.com/cybera/ccds/internal/paths"
-	"github.com/cybera/ccds/internal/templates"
-	"github.com/cybera/ccds/internal/utils"
+	"github.com/cybera/mimir/internal/languages"
+	"github.com/cybera/mimir/internal/paths"
+	"github.com/cybera/mimir/internal/templates"
+	"github.com/cybera/mimir/internal/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
@@ -164,7 +164,7 @@ func initProject(projectRoot, author, license, language string) error {
 func createSkeleton(projectRoot, language string) error {
 	// Key is the directory path, value is whether to create a .gitkeep file
 	directories := map[string]bool{
-		".ccds":             false,
+		".mimir":             false,
 		"data":              false,
 		"data/external":     true,
 		"data/interim":      true,
@@ -288,8 +288,8 @@ func initRepo() error {
 		return errors.Wrap(err, "failed to initialize git repo")
 	}
 
-	gitAdd(".ccds")
-	gitCommit("Add ccds config directory")
+	gitAdd(".mimir")
+	gitCommit("Add mimir config directory")
 	gitAdd(".gitignore", "LICENSE")
 	gitCommit("Add standard repo files")
 	gitAdd("Dockerfile", "docker-compose.yml")

@@ -5,8 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cybera/ccds/internal/datasets"
-	"github.com/cybera/ccds/internal/fetchers"
+	"github.com/cybera/mimir/internal/datasets"
+	"github.com/cybera/mimir/internal/fetchers"
 	"github.com/spf13/cobra"
 )
 

@@ -4,10 +4,10 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cybera/ccds/internal/languages"
-	"github.com/cybera/ccds/internal/paths"
-	"github.com/cybera/ccds/internal/test"
-	"github.com/cybera/ccds/internal/utils"
+	"github.com/cybera/mimir/internal/languages"
+	"github.com/cybera/mimir/internal/paths"
+	"github.com/cybera/mimir/internal/test"
+	"github.com/cybera/mimir/internal/utils"
 	"github.com/spf13/viper"
 )
 
@@ -19,7 +19,7 @@ func TestDataseAdd(t *testing.T) {
 	defer os.RemoveAll("_test")
 	defer os.Chdir("../")
 
-	for _, d := range []string{".ccds", paths.DatasetsCode()} {
+	for _, d := range []string{".mimir", paths.DatasetsCode()} {
 		if err := os.MkdirAll(d, os.ModePerm); err != nil {
 			t.Fatalf("error creating directory: %v", err)
 		}

@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/cybera/ccds/internal/languages"
-	"github.com/cybera/ccds/internal/test"
+	"github.com/cybera/mimir/internal/languages"
+	"github.com/cybera/mimir/internal/test"
 )
 
 func TestInit(t *testing.T) {
