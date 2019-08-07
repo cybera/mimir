@@ -18,11 +18,11 @@ import (
 func TestFetch(t *testing.T) {
 	fetchers.Factories["mock"] = NewMockFetcher
 
-	testDir, err := test.CreateTestDir()
+	err := test.CreateTestDir("_test")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(testDir)
+	defer os.RemoveAll("_test")
 	defer os.Chdir("../")
 
 	for _, d := range []string{".ccds", paths.RawDatasets(), paths.DatasetsCode()} {
@@ -60,11 +60,11 @@ func TestFetchAll(t *testing.T) {
 		mockDatasets[name] = datasets.Dataset{File: name + ".csv", FetcherConfig: fetcherConfig}
 	}
 
-	testDir, err := test.CreateTestDir()
+	err := test.CreateTestDir("_test")
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.RemoveAll(testDir)
+	defer os.RemoveAll("_test")
 	defer os.Chdir("../")
 
 	for _, d := range []string{".ccds", paths.RawDatasets(), paths.DatasetsCode()} {
