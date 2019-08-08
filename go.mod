@@ -1,4 +1,4 @@
-module github.com/cybera/ccds
+module github.com/cybera/mimir
 
 go 1.12
 

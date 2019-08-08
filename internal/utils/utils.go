@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"github.com/cybera/ccds/internal/paths"
+	"github.com/cybera/mimir/internal/paths"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )

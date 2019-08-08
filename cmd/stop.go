@@ -4,7 +4,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/cybera/ccds/internal/commands"
+	"github.com/cybera/mimir/internal/commands"
 	"github.com/spf13/cobra"
 )
 

@@ -6,10 +6,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cybera/ccds/internal/fetchers"
-	"github.com/cybera/ccds/internal/languages"
-	"github.com/cybera/ccds/internal/paths"
-	"github.com/cybera/ccds/internal/templates"
+	"github.com/cybera/mimir/internal/fetchers"
+	"github.com/cybera/mimir/internal/languages"
+	"github.com/cybera/mimir/internal/paths"
+	"github.com/cybera/mimir/internal/templates"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )

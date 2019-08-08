@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/cybera/ccds/internal/utils"
+	"github.com/cybera/mimir/internal/utils"
 	"github.com/pkg/errors"
 )
 

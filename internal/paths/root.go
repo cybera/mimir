@@ -30,7 +30,7 @@ func ProjectRoot() (string, error) {
 		}
 
 		for _, f := range files {
-			if f.Name() == ".ccds" && f.IsDir() {
+			if f.Name() == ".mimir" && f.IsDir() {
 				return dir, nil
 			}
 		}

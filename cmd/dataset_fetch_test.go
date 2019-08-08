@@ -6,11 +6,11 @@ import (
 	"strconv"
 	"testing"
 
-	"github.com/cybera/ccds/internal/datasets"
-	"github.com/cybera/ccds/internal/fetchers"
-	"github.com/cybera/ccds/internal/paths"
-	"github.com/cybera/ccds/internal/test"
-	"github.com/cybera/ccds/internal/utils"
+	"github.com/cybera/mimir/internal/datasets"
+	"github.com/cybera/mimir/internal/fetchers"
+	"github.com/cybera/mimir/internal/paths"
+	"github.com/cybera/mimir/internal/test"
+	"github.com/cybera/mimir/internal/utils"
 	"github.com/pkg/errors"
 	"github.com/spf13/viper"
 )
@@ -25,7 +25,7 @@ func TestFetch(t *testing.T) {
 	defer os.RemoveAll("_test")
 	defer os.Chdir("../")
 
-	for _, d := range []string{".ccds", paths.RawDatasets(), paths.DatasetsCode()} {
+	for _, d := range []string{".mimir", paths.RawDatasets(), paths.DatasetsCode()} {
 		if err := os.MkdirAll(d, os.ModePerm); err != nil {
 			t.Fatalf("error creating directory: %v", err)
 		}
@@ -67,7 +67,7 @@ func TestFetchAll(t *testing.T) {
 	defer os.RemoveAll("_test")
 	defer os.Chdir("../")
 
-	for _, d := range []string{".ccds", paths.RawDatasets(), paths.DatasetsCode()} {
+	for _, d := range []string{".mimir", paths.RawDatasets(), paths.DatasetsCode()} {
 		if err := os.MkdirAll(d, os.ModePerm); err != nil {
 			t.Fatalf("error creating directory: %v", err)
 		}

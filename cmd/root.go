@@ -6,7 +6,7 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/cybera/ccds/internal/paths"
+	"github.com/cybera/mimir/internal/paths"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -14,8 +14,8 @@ import (
 var nonInteractive, yesToAll bool
 
 var rootCmd = &cobra.Command{
-	Use:   "ccds",
-	Short: "CCDS is a data science project generator",
+	Use:   "mimir",
+	Short: "Mimir is a data science project generator",
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		projectRoot, err := paths.ProjectRoot()
 		if err != nil {

@@ -37,5 +37,5 @@ func ProcessedDatasets() string {
 }
 
 func ProjectMetadata() string {
-	return ".ccds/project-metadata.toml"
+	return ".mimir/project-metadata.toml"
 }

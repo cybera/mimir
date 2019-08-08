@@ -4,7 +4,7 @@ import (
 	"os/exec"
 	"path/filepath"
 
-	"github.com/cybera/ccds/internal/paths"
+	"github.com/cybera/mimir/internal/paths"
 	"github.com/spf13/viper"
 )
 

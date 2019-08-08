@@ -14,20 +14,20 @@ Decision:
 Our workflows should be as follows:
 
 local:
-  $ ccds dataset add kittykats.csv --from /home/cam/download/adoption.csv
+  $ mimir dataset add kittykats.csv --from /home/cam/download/adoption.csv
    
 generated:
-  $ ccds dataset add bestkats.csv --generated --dependencies=kittykats
+  $ mimir dataset add bestkats.csv --generated --dependencies=kittykats
  
 remote:
-  $ ccds dataset add breedinfo.csv --source swift --from spca/breedinfo.csv
+  $ mimir dataset add breedinfo.csv --source swift --from spca/breedinfo.csv
 
 Future decisions:
 
 We'll likely want a more expressive form of describing where remote datasets are, especially as all the datasets may not be in the same remote location:
 
-  $ ccds remote add rac --oooh-magic-oooh
-  $ ccds dataset add breedinfo.csv --remote rac --from spca/breedinfo.csv
+  $ mimir remote add rac --oooh-magic-oooh
+  $ mimir dataset add breedinfo.csv --remote rac --from spca/breedinfo.csv
 
 Assumptions:
 

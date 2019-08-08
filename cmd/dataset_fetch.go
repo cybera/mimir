@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	"github.com/cybera/ccds/internal/datasets"
-	"github.com/cybera/ccds/internal/utils"
+	"github.com/cybera/mimir/internal/datasets"
+	"github.com/cybera/mimir/internal/utils"
 	"github.com/spf13/cobra"
 )
 
