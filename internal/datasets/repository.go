@@ -33,7 +33,7 @@ func Create(file string, fetcherConfig fetchers.FetcherConfig, generated bool, d
 
 	viper.Set("datasets."+name, dataset)
 	if err := utils.WriteConfig(); err != nil {
-		return dataset, errors.Wrap(err, "error updating project metadate")
+		return dataset, errors.Wrap(err, "error updating project metadata")
 	}
 
 	return dataset, nil
