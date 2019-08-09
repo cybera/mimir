@@ -1,6 +1,6 @@
 # Mimir
 
-Mimir is an interactive CLI tool that simplifies common repetitive tasks and provides a logical and consistent structure for your data science projects. 
+Mimir is an interactive CLI tool that simplifies common repetitive tasks and provides a logical and consistent structure for your data science projects.
 
 Pre-configured for use with Git, Docker, and Jupyter Labs. Currently supports R and Python development.
 
@@ -27,9 +27,9 @@ Download it [here](https://github.com/cybera/mimir/releases).
 
 ### Development Version
 
-1. `git clone git@github.com:cybera/mimir.git` and checkout the branch you wish to use. 
+1. `git clone git@github.com:cybera/mimir.git` and checkout the branch you wish to use.
 2. Ensure you've installed [golang](https://golang.org/dl/) and set the [$GOPATH variable](https://github.com/golang/go/wiki/SettingGOPATH#unix-systems) (it will be set automatically if you're installing on Windows)
-4. Install packr2 by running `go get -u github.com/gobuffalo/packr/v2/packr2`. 
+4. Install packr2 by running `go get -u github.com/gobuffalo/packr/v2/packr2`.
 5. Run `packr2 install` from the Mimir root directory.
 
 &nbsp;
@@ -83,7 +83,7 @@ mimir dataset add my_dataset.csv --from ~/Downloads/source_data.csv
 This will make Mimir aware of the dataset's source location and generate import code in `src/datasets/my_dataset.py` or `src/datasets/my_dataset.r` so that you can start working with your dataset right away. This will not copy the dataset yet, just creating a R/Python template for it.
 
 ### Stored somewhere else
-You can import datasets stored in an external cloudprovider using OpenStack. You'll need to ensure that you've saved your OpenStack security credentials and sourced them. Currently Mimir only supports fetching through Swift, so [ensure you have it installed](https://swift.org/getting-started/#using-the-repl)
+You can import datasets stored in an external cloud provider, such as OpenStack. Currently Mimir only supports fetching through OpenStack Swift, so [ensure you have it installed](https://docs.openstack.org/ocata/user-guide/common/cli-install-openstack-command-line-clients.html) and have [configured your OpenStack authentication](https://docs.openstack.org/ocata/user-guide/common/cli-set-environment-variables-using-openstack-rc.html).
 
 Let's say I have a container called `datasets_container` that hosts my source dataset, `cloud_source.csv`.
 
@@ -172,7 +172,7 @@ Under `[datasets.my_dataset.source]`, edit the `target` line. Rerun `mimir datas
 <a name="jupyter" />
 
 ## Jupyter Notebooks
-The `jupyter` subcommand manages the Jupyter Labs Docker container. 
+The `jupyter` subcommand manages the Jupyter Labs Docker container.
 
 ### Starting Jupyter
 To start a Jupyter Labs instance, run the following command:
@@ -194,7 +194,7 @@ mimir jupyter stop
 
 ### Troubleshooting
 
-#### Error: no connection, localhost:8888 won't load in the browser 
+#### Error: no connection, localhost:8888 won't load in the browser
 You may need to [open your hosts configuration](https://en.wikiversity.org/wiki/Hosts_file/Edit) and double-check that the following line exists:
 
 ```bash
