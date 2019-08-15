@@ -4,7 +4,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/cybera/mimir/internal/fetchers"
 	"github.com/cybera/mimir/internal/languages"
@@ -81,8 +80,7 @@ func (d Dataset) Fetch() ([]byte, error) {
 }
 
 func (d Dataset) GenerateCode() error {
-	ext := filepath.Ext(d.File)
-	name := strings.TrimSuffix(d.File, ext)
+	name := canonicalName(d.File)
 
 	lang := viper.GetString("PrimaryLanguage")
 	root := viper.GetString("ProjectRoot")
