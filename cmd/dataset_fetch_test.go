@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -105,12 +106,14 @@ type MockFetcher struct {
 	target string
 }
 
-func (m MockFetcher) Fetch() ([]byte, error) {
+func (m MockFetcher) Fetch(writer io.Writer) error {
 	if m.target != "container/iris.csv" {
-		return nil, errors.New("target not found")
+		return errors.New("target not found")
 	}
 
-	return []byte(contents), nil
+	_, err := writer.Write([]byte(contents))
+
+	return err
 }
 
 func NewMockFetcher(config fetchers.FetcherConfig) (fetchers.Fetcher, error) {

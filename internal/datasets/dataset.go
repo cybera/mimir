@@ -43,8 +43,12 @@ func (d Dataset) Exists() (bool, error) {
 	}
 }
 
-func (d Dataset) FetchAndWrite() error {
-	bytes, err := d.Fetch()
+func (d Dataset) Fetch() error {
+	if d.Generated {
+		return errors.New("can't fetch a generated dataset")
+	}
+
+	fetcher, err := fetchers.NewFetcher(d.FetcherConfig)
 	if err != nil {
 		return err
 	}
@@ -55,29 +59,11 @@ func (d Dataset) FetchAndWrite() error {
 	}
 	defer file.Close()
 
-	if _, err := file.Write(bytes); err != nil {
+	if err := fetcher.Fetch(file); err != nil {
 		return err
 	}
 
 	return nil
-}
-
-func (d Dataset) Fetch() ([]byte, error) {
-	if d.Generated {
-		return nil, errors.New("can't fetch a generated dataset")
-	}
-
-	fetcher, err := fetchers.NewFetcher(d.FetcherConfig)
-	if err != nil {
-		return nil, err
-	}
-
-	bytes, err := fetcher.Fetch()
-	if err != nil {
-		return nil, err
-	}
-
-	return bytes, nil
 }
 
 func (d Dataset) GenerateCode() error {
