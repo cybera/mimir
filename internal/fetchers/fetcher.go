@@ -1,13 +1,15 @@
 package fetchers
 
 import (
+	"io"
+
 	"github.com/pkg/errors"
 )
 
 var Factories = map[string]func(FetcherConfig) (Fetcher, error){}
 
 type Fetcher interface {
-	Fetch() ([]byte, error)
+	Fetch(io.Writer) error
 }
 
 type FetcherConfig struct {

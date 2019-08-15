@@ -84,7 +84,7 @@ func fetch(dataset datasets.Dataset) error {
 		return nil
 	}
 
-	return dataset.FetchAndWrite()
+	return dataset.Fetch()
 }
 
 func init() {

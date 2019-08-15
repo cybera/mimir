@@ -1,6 +1,7 @@
 package fetchers
 
 import (
+	"io"
 	"strings"
 
 	"github.com/gophercloud/gophercloud/openstack/objectstorage/v1/objects"
@@ -25,19 +26,23 @@ func NewSwiftFetcher(config FetcherConfig) (Fetcher, error) {
 	return SwiftFetcher{containerName: container, objectName: object}, nil
 }
 
-func (f SwiftFetcher) Fetch() ([]byte, error) {
+func (f SwiftFetcher) Fetch(writer io.Writer) error {
 	client, err := clientconfig.NewServiceClient("object-store", nil)
 	if err != nil {
-		return nil, errors.Wrap(err, "swift client creation failed")
+		return errors.Wrap(err, "swift client creation failed")
 	}
 
-	object := objects.Download(client, f.containerName, f.objectName, nil)
-	content, err := object.ExtractContent()
+	res := objects.Download(client, f.containerName, f.objectName, nil)
+	if res.Err != nil {
+		return errors.Wrapf(res.Err, "error getting object %s/%s", f.containerName, f.objectName)
+	}
+
+	_, err = io.Copy(writer, res.Body)
 	if err != nil {
-		return nil, errors.Wrap(err, "failed to extract object content")
+		return errors.Wrapf(err, "error writing object %s/%s", f.containerName, f.objectName)
 	}
 
-	return content, nil
+	return nil
 }
 
 func init() {
