@@ -3,7 +3,6 @@ package datasets
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/cybera/mimir/internal/utils"
 
@@ -18,10 +17,12 @@ func Create(file string, fetcherConfig fetchers.FetcherConfig, generated bool, d
 		return Dataset{}, errors.New("missing file extension")
 	}
 
-	name := strings.TrimSuffix(file, ext)
+	name := canonicalName(file)
 	if _, err := Get(name); err == nil {
 		return Dataset{}, errors.New("dataset already exists")
 	}
+
+	dependencies = canonicalNames(dependencies)
 
 	for _, dep := range dependencies {
 		if _, err := Get(dep); err != nil {
@@ -40,11 +41,11 @@ func Create(file string, fetcherConfig fetchers.FetcherConfig, generated bool, d
 }
 
 func Get(name string) (Dataset, error) {
-	cleanedName := strings.TrimSuffix(name, filepath.Ext(name))
+	name = canonicalName(name)
 
 	var dataset Dataset
 
-	if err := viper.UnmarshalKey("datasets."+cleanedName, &dataset); err != nil {
+	if err := viper.UnmarshalKey("datasets."+name, &dataset); err != nil {
 		return Dataset{}, err
 	}
 

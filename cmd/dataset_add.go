@@ -2,8 +2,6 @@ package cmd
 
 import (
 	"log"
-	"path/filepath"
-	"strings"
 
 	"github.com/cybera/mimir/internal/datasets"
 	"github.com/cybera/mimir/internal/fetchers"
@@ -26,11 +24,6 @@ var addDatasetCmd = &cobra.Command{
 
 		if !generated && from == "" {
 			log.Fatal("Non-generated datasets require --from to be defined")
-		}
-
-		for i, d := range dependencies {
-			ext := filepath.Ext(d)
-			dependencies[i] = strings.TrimSuffix(d, ext)
 		}
 
 		fetcherConfig := fetchers.FetcherConfig{Name: source, From: from}
