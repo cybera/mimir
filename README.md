@@ -30,7 +30,13 @@ Download it [here](https://github.com/cybera/mimir/releases).
 1. `git clone git@github.com:cybera/mimir.git` and checkout the branch you wish to use.
 2. Ensure you've installed [golang](https://golang.org/dl/) and set the [$GOPATH variable](https://github.com/golang/go/wiki/SettingGOPATH#unix-systems) (it will be set automatically if you're installing on Windows)
 4. Install packr2 by running `go get -u github.com/gobuffalo/packr/v2/packr2`.
-5. Run `packr2 install` from the Mimir root directory.
+5. Run `packr2` 
+6. Run `go install`
+
+#### Troubleshooting
+Remove any generated artifacts by running `packr2 clean`, then re-try your command
+
+
 
 &nbsp;
 
